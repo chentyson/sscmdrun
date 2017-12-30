@@ -1,0 +1,136 @@
+Fri, 17 Mar 2017 17:52:17 db.py[line:38] INFO added a new port[11252],userinfo:[{}]!
+Fri, 17 Mar 2017 17:53:09 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 17:55:52 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 17:55:52 db.py[line:38] INFO added a new port[11253],userinfo:[{'qq': '1716677', 'status': 'payed', 'startdata': 20170310}]!
+Fri, 17 Mar 2017 18:12:32 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:12:32 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:12:32 db.py[line:68] DEBUG  where status like "%pay%"
+Fri, 17 Mar 2017 18:16:32 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:16:32 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:16:32 db.py[line:69] DEBUG select qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:18:20 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:18:20 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:18:20 db.py[line:69] DEBUG select qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:19:25 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:19:25 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:19:25 db.py[line:69] DEBUG select qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:19:35 db.py[line:69] DEBUG select qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:20:26 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:20:26 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:20:26 db.py[line:69] DEBUG select qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:22:12 db.py[line:34] WARNING Adding port[11252] existed,return 0 back
+Fri, 17 Mar 2017 18:22:12 db.py[line:34] WARNING Adding port[11253] existed,return 0 back
+Fri, 17 Mar 2017 18:22:12 db.py[line:69] DEBUG select port,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 18:22:45 db.py[line:38] INFO added a new port[11252],userinfo:[{}]!
+Fri, 17 Mar 2017 18:22:45 db.py[line:38] INFO added a new port[11253],userinfo:[{'qq': '1716677', 'status': 'payed', 'startdata': 20170310}]!
+Fri, 17 Mar 2017 18:22:45 db.py[line:69] DEBUG select port,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 19:03:54 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:03:54 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:03:54 db.py[line:70] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 19:04:11 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:04:11 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:04:11 db.py[line:70] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 19:41:00 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:41:00 db.py[line:42] ERROR db.py:Exception when add a user:%d format: a number is required, not NoneType
+Fri, 17 Mar 2017 19:41:00 db.py[line:70] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Fri, 17 Mar 2017 19:43:37 db.py[line:39] INFO added a new port[11252],userinfo:[{}]!
+Fri, 17 Mar 2017 19:43:37 db.py[line:39] INFO added a new port[11253],userinfo:[{'qq': '1716677', 'status': 'payed', 'startdata': 20170310}]!
+Fri, 17 Mar 2017 19:43:37 db.py[line:70] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:47:50 db.py[line:39] INFO added a new port[11252],userinfo:[{}]!
+Sat, 18 Mar 2017 07:47:50 db.py[line:39] INFO added a new port[11253],userinfo:[{'qq': '1716677', 'status': 'pay', 'startdata': 20170310}]!
+Sat, 18 Mar 2017 07:47:50 db.py[line:71] DEBUG status like "%pay%"
+Sat, 18 Mar 2017 07:49:43 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 07:49:43 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 07:49:43 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:49:43 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 07:51:31 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 07:51:31 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 07:51:31 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:51:31 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 07:52:28 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 07:52:28 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 07:52:28 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:52:28 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 07:52:28 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 07:53:25 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 07:53:25 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 07:53:25 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:53:25 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 07:53:25 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 07:53:25 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 07:56:22 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 07:56:22 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 07:56:22 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 07:56:22 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 07:56:22 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 07:56:22 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 07:56:22 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 08:01:13 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 08:01:13 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 08:01:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 08:01:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 08:01:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 08:01:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 08:01:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sat, 18 Mar 2017 08:03:52 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 08:03:52 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sat, 18 Mar 2017 08:03:52 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sat, 18 Mar 2017 08:08:13 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 08:08:13 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sat, 18 Mar 2017 08:08:13 db.py[line:71] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250
+Sat, 18 Mar 2017 11:39:18 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sat, 18 Mar 2017 11:39:18 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sat, 18 Mar 2017 11:39:18 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250
+Sun, 19 Mar 2017 16:54:02 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sun, 19 Mar 2017 16:54:02 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sun, 19 Mar 2017 16:54:02 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250
+Sun, 19 Mar 2017 16:54:55 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sun, 19 Mar 2017 16:54:55 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sun, 19 Mar 2017 16:54:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250
+Sun, 19 Mar 2017 16:56:14 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sun, 19 Mar 2017 16:56:14 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sun, 19 Mar 2017 16:56:14 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250
+Sun, 19 Mar 2017 16:56:55 db.py[line:35] WARNING Adding port[11252] existed,return 0 back
+Sun, 19 Mar 2017 16:56:55 db.py[line:35] WARNING Adding port[11253] existed,return 0 back
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%pay%"
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where status like "%test%"
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%"
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where qq like "%171%" and status like "%pay%"
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where startdate>20170101
+Sun, 19 Mar 2017 16:56:55 db.py[line:72] DEBUG select port,pass,qq,email,startdate,enddate,ips,status from users where port=11250

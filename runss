@@ -1,0 +1,2 @@
+#sudo /etc/init.d/shadowsocks restart
+supervisorctl restart ss
