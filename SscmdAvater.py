@@ -76,11 +76,12 @@ def stopport(port,dbinfo,cfgfile):
         return 0,'Fail.%s\n' % msg
     return 0,'Ok. the port[%s] is stoped now.\n' % str(port)
 
-def SignalPasswd(port):
+def signalpass(port):
     pids=get_pid("shadowsocks-server")
     #send signal ,to reset port listener
-    for i in pids 
+    for i in pids: 
         os.kill(i,signal.SIGHUP)            
+        log.msg('Sent a SIGHUP signal to ss, done');
     
 class SscmdAvater(object):
     implements(ISscmdAvaterInterface)
@@ -248,23 +249,20 @@ class SscmdAvater(object):
                 return 0,'Invalid argument. usage: reset <port>. example: reset 11250\n'
             if self.usertype=='user' and cmd[1]!=self.avaterId:
                 return 0,'You can only reset the port of yourself.\n'
-            pids=get_pid("shadowsocks-server")
-            #send signal ,to reset port listener
-            for i in pids 
-                os.kill(i,signal.SIGUSR1)            
+            signalpass(cmd[1]);
             return 0,''
 
         if cmd[0]=='expdate':
             if len(cmd)<2 or not cmd[1].isdigit():
-                return 1,'Invalid argument format'
+                return -1,'Invalid argument format'
             if self.usertype=='user' and cmd[1]!=self.avaterId:
-                return 1,'The port you queryed shold be logined.'
+                return -1,'The port you queryed shold be logined.'
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
-            if len(userinfo)==0: 
-                return 1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
-            else 
-                return 0, userinfo['enddate']
-        
+            if len(userinfo)==0:
+                return -1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
+            else:
+                return -1, 'ok,%s' % str(userinfo['enddate'])
+
         #pay a port. update db status to 'pay', check config file and create if not exists
         if cmd[0]=='pay' and self.usertype=='admin':
             if len(cmd)!=3 or not cmd[1].isdigit() or not cmd[2].isdigit():
@@ -338,6 +336,16 @@ class SscmdAvater(object):
                 return 0,'Fail,run cclp error. \n%s\n' % output
             else:
                 return 0,'Ok,\n%s\n' % output
-  
+
+        if cmd[0]='netstat' and self.usertype=='admin':
+            if len(cmd)<2 or not cmd[1].isdigit():
+                return 0,'Invalid argument. usage: netstat <port>. example: netstat 11250\n'
+            (status,output)=commands.getstatusoutput('netstat -anp | grep %s' % cmd[1])
+            log.msg('run netstat -anp | grep %s' % cmd[1])
+            if status>0:
+                return 0,'Fail,run netstat error. \n%s\n' % output
+            else:
+                return 0,''
+
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
