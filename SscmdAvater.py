@@ -11,6 +11,7 @@ import string
 from subprocess import check_output
 import os
 import signal
+from config import config
 
 #define admin user and pass
 _adminuser='tyson'
@@ -105,7 +106,7 @@ class SscmdAvater(object):
   
         if cmd[0]=='exit': return -1,None
        
-        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:19u3.boosoo.cn\n服务器端口:%d\n      密码:%s\n服务到期日:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上端口和密码，确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
+        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:'+config.serverip'\n服务器端口:%d\n      密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
   
         if cmd[0]=='cfglist' and self.usertype=='admin':
             portlist=cfgfile.portpass();
@@ -147,7 +148,7 @@ class SscmdAvater(object):
             (port,password)=cfgfile.find_port(cmd[1])
             print port,password
             if port!='0':
-                return 0, portinfo % (int(port),password,'')
+                return 0, portinfo % (int(port),password,'','','')
             else:
                 return 0, 'Port or password can not find [%s]!\n' % cmd[1]
  
@@ -173,7 +174,12 @@ class SscmdAvater(object):
             cols,rows=dbinfo.find(userinfo);
             msg=str(cols)+'\n'+'\n'.join(str(a) for a in rows) +'\n'+str(len(rows))+' records found!\n'
             if info and len(rows)==1:
-                msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),str(rows[0][cols.index('enddate')]))
+                ips=str(rows[0][cols.index('ips')]);
+                if int(ips)>2:
+                    atype='多人共享版'
+                else:
+                    atype='个人版'
+                msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),atype,ips,str(rows[0][cols.index('enddate')]))
             return 0,msg
             
         if cmd[0]=='cfgcount' and self.usertype=='admin':
@@ -206,7 +212,11 @@ class SscmdAvater(object):
             log.msg('Port[%d] is new added to mem(not saved),password[%s]' % (port,userinfo['pass']))
             cfgfile.save_config();
             log.msg('Port[%s] is saved to config and actived ,password[%s]' % (port,userinfo['pass']))
-            return 0, portinfo % (port,userinfo['pass'],userinfo['enddate'])
+            ips=userinfo['ips']
+            if int(ips)>2:
+                atype='多人共享版'
+            else: atype='个人版'
+            return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'])
   
         if cmd[0]=='update' and self.usertype=='admin':
             if len(cmd)<3 or not cmd[1].isdigit():
@@ -249,20 +259,23 @@ class SscmdAvater(object):
                 return 0,'Invalid argument. usage: reset <port>. example: reset 11250\n'
             if self.usertype=='user' and cmd[1]!=self.avaterId:
                 return 0,'You can only reset the port of yourself.\n'
-            signalpass(cmd[1]);
+            pids=get_pid("shadowsocks-server")
+            #send signal ,to reset port listener
+            for i in pids 
+                os.kill(i,signal.SIGUSR1)            
             return 0,''
 
         if cmd[0]=='expdate':
             if len(cmd)<2 or not cmd[1].isdigit():
-                return -1,'Invalid argument format'
+                return 1,'Invalid argument format'
             if self.usertype=='user' and cmd[1]!=self.avaterId:
-                return -1,'The port you queryed shold be logined.'
+                return 1,'The port you queryed shold be logined.'
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
-            if len(userinfo)==0:
-                return -1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
-            else:
-                return -1, 'ok,%s' % str(userinfo['enddate'])
-
+            if len(userinfo)==0: 
+                return 1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
+            else 
+                return 0, userinfo['enddate']
+        
         #pay a port. update db status to 'pay', check config file and create if not exists
         if cmd[0]=='pay' and self.usertype=='admin':
             if len(cmd)!=3 or not cmd[1].isdigit() or not cmd[2].isdigit():
@@ -336,16 +349,6 @@ class SscmdAvater(object):
                 return 0,'Fail,run cclp error. \n%s\n' % output
             else:
                 return 0,'Ok,\n%s\n' % output
-
-        if cmd[0]=='netstat' and self.usertype=='admin':
-            if len(cmd)<2 or not cmd[1].isdigit():
-                return 0,'Invalid argument. usage: netstat <port>. example: netstat 11250\n'
-            (status,output)=commands.getstatusoutput('netstat -anp | grep %s' % cmd[1])
-            log.msg('run netstat -anp | grep %s' % cmd[1])
-            if status>0:
-                return 0,'Fail,run netstat error. \n%s\n' % output
-            else:
-                return 0,output
-
+  
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
