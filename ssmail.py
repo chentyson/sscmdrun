@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from datetime import datetime
 import sstime
+from config import config
 
 def mail(subject, text_content, html_content, email):
     msg = EmailMultiAlternatives(subject, text_content, '震撼科技<1716677@qq.com>', [email,'1716677@qq.com'])
@@ -29,8 +30,8 @@ def mailwillexp(cols,rows):
             email=row[cols.index('email')]
 
             subject = subject % port
-            text_content = text_content % (port,'19u3.boosoo.cn',enddate)
-            html_content = html_content % (port,'19u3.boosoo.cn',enddate,days)
+            text_content = text_content % (port,config.serverip,enddate)
+            html_content = html_content % (port,config.serverip,enddate,days)
             mail(subject,text_content,html_content,email)
 
 def mailtest(cols,rows):
@@ -45,8 +46,8 @@ def mailtest(cols,rows):
         email=row[cols.index('email')]
         
         subject = subject % port
-        text_content = text_content % (port,'19u3.boosoo.cn',startdate)
-        html_content = html_content % (port,'19u3.boosoo.cn',startdate)
+        text_content = text_content % (port,config.serverip,startdate)
+        html_content = html_content % (port,config.serverip,startdate)
         mail(subject,text_content,html_content,email)
 
 
@@ -61,8 +62,8 @@ def mailexp(cols,rows):
         enddate=row[cols.index('enddate')]
         email=row[cols.index('email')]
         subject = subject % port
-        text_content = text_content % (port,'19u3.boosoo.cn',enddate)
-        html_content = html_content % (port,'19u3.boosoo.cn',enddate)
+        text_content = text_content % (port,config.serverip,enddate)
+        html_content = html_content % (port,config.serverip,,enddate)
         mail(subject,text_content,html_content,email)
 
 def mailstoped(cols,rows):
