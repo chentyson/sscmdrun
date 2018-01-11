@@ -73,6 +73,7 @@ def stopport(port,dbinfo,cfgfile):
     port,msg=cfgfile.del_port(port);
     if port>0:
         cfgfile.save_config();
+        signalpass(port)
     else: 
         return 0,'Fail.%s\n' % msg
     return 0,'Ok. the port[%s] is stoped now.\n' % str(port)
@@ -212,6 +213,8 @@ class SscmdAvater(object):
             log.msg('Port[%d] is new added to mem(not saved),password[%s]' % (port,userinfo['pass']))
             cfgfile.save_config();
             log.msg('Port[%s] is saved to config and actived ,password[%s]' % (port,userinfo['pass']))
+            #reload pass
+            signalpass(port)
             ips=userinfo['ips']
             if int(ips)>2:
                 atype='多人共享版'
@@ -301,6 +304,7 @@ class SscmdAvater(object):
             #update config file
             cfgfile.portpass()[str(port)]=userinfo['pass'];
             cfgfile.save_config();
+            signalpass(port)
             log.msg('pay command. port[%s] is payed for [%s] months. New user infomation[%s]\n' % (cmd[1],cmd[2],str(userinfo)));
             return 0,'Ok. the port[%s] is payed for [%s] months. New end date[%s]\n' % (cmd[1],cmd[2],userinfo['enddate'])
   
@@ -331,6 +335,7 @@ class SscmdAvater(object):
             #delete port from config file, if not exist, not care
             cfgfile.del_port(port);
             cfgfile.save_config();
+            signalpass(port)
             log.msg('Port[%d] is deleted from config file!' % port)
             return 0,'OK,port[%d] is deleted. Userinfo is %s.\n' % (port,str(rows))
   
