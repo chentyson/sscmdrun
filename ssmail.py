@@ -63,7 +63,7 @@ def mailexp(cols,rows):
         email=row[cols.index('email')]
         subject = subject % port
         text_content = text_content % (port,config.serverip,enddate)
-        html_content = html_content % (port,config.serverip,,enddate)
+        html_content = html_content % (port,config.serverip,enddate)
         mail(subject,text_content,html_content,email)
 
 def mailstoped(cols,rows):

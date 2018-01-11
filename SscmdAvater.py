@@ -106,7 +106,7 @@ class SscmdAvater(object):
   
         if cmd[0]=='exit': return -1,None
        
-        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:'+config.serverip'\n服务器端口:%d\n      密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
+        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:'+config.serverip+'\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
   
         if cmd[0]=='cfglist' and self.usertype=='admin':
             portlist=cfgfile.portpass();
@@ -261,7 +261,7 @@ class SscmdAvater(object):
                 return 0,'You can only reset the port of yourself.\n'
             pids=get_pid("shadowsocks-server")
             #send signal ,to reset port listener
-            for i in pids 
+            for i in pids: 
                 os.kill(i,signal.SIGUSR1)            
             return 0,''
 
@@ -273,7 +273,7 @@ class SscmdAvater(object):
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
             if len(userinfo)==0: 
                 return 1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
-            else 
+            else: 
                 return 0, userinfo['enddate']
         
         #pay a port. update db status to 'pay', check config file and create if not exists
