@@ -357,5 +357,15 @@ class SscmdAvater(object):
             else:
                 return 0,'Ok,\n%s\n' % output
   
+        if cmd[0]=='netstat' and self.usertype=='admin':
+            if len(cmd)<2 or not cmd[1].isdigit():
+                return 0,'Invalid argument. usage: netstat <port>. example: netstat 11250\n'
+            (status,output)=commands.getstatusoutput('netstat -anp | grep %s' % cmd[1])
+            log.msg('run netstat -anp | grep %s' % cmd[1])
+            if status>0:
+                return 0,'Fail,run netstat error. \n%s\n' % output
+            else:
+                return 0,output
+
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
