@@ -288,10 +288,12 @@ class SscmdAvater(object):
                 return 0,'Can not find port[%d].\n' % int(cmd[1])
             log.msg('Find port[%s], userinfo[%s].' % (cmd[1],str(userinfo)));
             #status change to pay,and update end date;
-            if userinfo['status']=='test':
-                end=datetime.strptime(userinfo['startdate'],'%Y%m%d').date()
-            else:
-                end=datetime.strptime(userinfo['enddate'],'%Y%m%d').date()
+            #if userinfo['status']=='test':
+            #    end=datetime.strptime(userinfo['startdate'],'%Y%m%d').date()
+            #else:
+            end=datetime.strptime(userinfo['enddate'],'%Y%m%d').date()
+            if end<datetime.date:
+                end = datetime.date;
             userinfo['status']='pay'
             end=sstime.monthdelta(end,int(cmd[2]));
             end=datetime.strftime(end,'%Y%m%d')
