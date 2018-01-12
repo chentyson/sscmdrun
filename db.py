@@ -13,7 +13,7 @@ from twisted.python import log
 class ssdb:
     
     def __init__(self):
-        self.conn=sqlite3.connect('./sscmd.db');
+        self.conn=sqlite3.connect('/etc/shadowsocks/sscmd.db');
         self.cur=self.conn.cursor();
         self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),startdate TEXT,enddate TEXT,ips integer,status varchar(10))');
         self.conn.commit();
