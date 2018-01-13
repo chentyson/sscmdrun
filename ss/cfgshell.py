@@ -77,7 +77,7 @@ class cfgfile:
         return None
     
     def commit(self):
-        return commands.getstatusoutput('./runss');
+        return commands.getstatusoutput('/etc/runss');
     
     def backup_config(self,config_path):
         newpath='./shadowsocks.json.backup/';

@@ -292,8 +292,8 @@ class SscmdAvater(object):
             #    end=datetime.strptime(userinfo['startdate'],'%Y%m%d').date()
             #else:
             end=datetime.strptime(userinfo['enddate'],'%Y%m%d').date()
-            if end<datetime.date:
-                end = datetime.date;
+            if end<datetime.now().date():
+                end = datetime.now().date();
             userinfo['status']='pay'
             end=sstime.monthdelta(end,int(cmd[2]));
             end=datetime.strftime(end,'%Y%m%d')
@@ -350,7 +350,7 @@ class SscmdAvater(object):
                 return 0,'Ok,restart server done.\n%s\n' % output
   
         if cmd[0]=='cclp' and self.usertype=='admin':
-            (status,output)=commands.getstatusoutput('./cclp')
+            (status,output)=commands.getstatusoutput('/root/cclp')
             log.msg('Run cclp,status(%s)' % status) 
             if status>0:
                 return 0,'Fail,run cclp error. \n%s\n' % output
