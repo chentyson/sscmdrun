@@ -77,10 +77,10 @@ class cfgfile:
         return None
     
     def commit(self):
-        return commands.getstatusoutput('/etc/runss');
+        return commands.getstatusoutput('/root/sscmdrun/runss');
     
     def backup_config(self,config_path):
-        newpath='./shadowsocks.json.backup/';
+        newpath='/root/shadowsocks.json.backup/';
         if not os.path.exists(newpath): os.makedirs(newpath)
         newpath+='config.json.' + time.strftime('%y%m%d%H%M%S');
         (s,o)=commands.getstatusoutput('cp %s %s' % (config_path,newpath ));
