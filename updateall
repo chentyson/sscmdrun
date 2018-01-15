@@ -1,0 +1,12 @@
+ssh root@19j.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19j2.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19j3.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19j4.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19j5.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19u.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19u2.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19u3.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19u4.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@19u5.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+ssh root@vip2.boosoo.cn "cd ~/sscmdrun;git pull;supervisorctl restart ssrun"
+
