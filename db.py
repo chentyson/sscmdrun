@@ -107,8 +107,8 @@ class ssdb:
         return port,dict(zip(cols,rows[0]))
      
     def getfreeport(self,ips):
-        rows=self.cur.execute('select port from users where port>=%d order by port' % (10000+ips*1000)).fetchall();
-        for i in range(10000+ips*1000,10000+ips*1000+999):
+        rows=self.cur.execute('select port from users where port>=11000 order by port').fetchall();
+        for i in range(11000,11999):
             try:
                 rows.index((i,));
             except ValueError:

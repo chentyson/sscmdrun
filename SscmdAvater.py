@@ -191,7 +191,7 @@ class SscmdAvater(object):
             userinfo={}
             userinfo['pass']=GenPassword();
             userinfo['status']='test';
-            userinfo['ips']=1;
+            userinfo['ips']=2;
             userinfo['startdate']=datetime.now().strftime('%Y%m%d');
             userinfo['enddate']=(datetime.now()+timedelta(days=1)).strftime('%Y%m%d');  #default test for 2 days
             userinfo,msg=param2dict(cmd,1,userinfo);
