@@ -216,7 +216,9 @@ class SscmdAvater(object):
             #reload pass
             signalpass(port)
             ips=userinfo['ips']
-            if int(ips)>2:
+            if userinfo['status']=='test':
+                atype='临时'
+            elif int(ips)>2:
                 atype='多人共享版'
             else: atype='个人版'
             return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'])
@@ -257,17 +259,6 @@ class SscmdAvater(object):
             log.msg('Port[%s] password is changed to config file. New password is [%s]' % (port,userinfo['pass']))
             return 0,'port[%d] password is changed! Active. \n' % (port)
   
-        if cmd[0]=='reset':
-            if len(cmd)<2 or not cmd[1].isdigit():
-                return 0,'Invalid argument. usage: reset <port>. example: reset 11250\n'
-            if self.usertype=='user' and cmd[1]!=self.avaterId:
-                return 0,'You can only reset the port of yourself.\n'
-            pids=get_pid("shadowsocks-server")
-            #send signal ,to reset port listener
-            for i in pids: 
-                os.kill(i,signal.SIGUSR1)            
-            return 0,''
-
         if cmd[0]=='expdate':
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 1,'Invalid argument format'
@@ -341,6 +332,20 @@ class SscmdAvater(object):
             log.msg('Port[%d] is deleted from config file!' % port)
             return 0,'OK,port[%d] is deleted. Userinfo is %s.\n' % (port,str(rows))
   
+        if cmd[0]=='cfgreset':  #reset config file, depend on sscmd.db
+            cfgfile.save_config();  #backup
+            cfgfile.clear_port();
+            userinfo={};
+            cols,rows=dbinfo.find(userinfo);
+            for r in rows:
+                if r[cols.indexof('status')]=='pay':
+                    port=cols.indexof('port');
+                    cfgfile.portpass()[str(port)]=cols.indexof('pass');
+            cfgfile.save_config();
+            signalpass(port)
+            log.msg('OK,config file is reseted to db pay user infomation!');
+            return 0,'OK,config file is reseted to db pay user infomation!'
+            
         if cmd[0]=='restart' and self.usertype=='admin':
             (status,output)=cfgfile.commit()
             log.msg('Commit,status(%s),output(%s)' % (status,output)) 
