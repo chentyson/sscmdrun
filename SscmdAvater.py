@@ -338,9 +338,9 @@ class SscmdAvater(object):
             userinfo={};
             cols,rows=dbinfo.find(userinfo);
             for r in rows:
-                if r[cols.indexof('status')]=='pay':
-                    port=cols.indexof('port');
-                    cfgfile.portpass()[str(port)]=cols.indexof('pass');
+                if r[cols.index('status')]=='pay':
+                    port=r[cols.index('port')];
+                    cfgfile.portpass()[str(port)]=r[cols.index('pass')];
             cfgfile.save_config();
             signalpass(port)
             log.msg('OK,config file is reseted to db pay user infomation!');
