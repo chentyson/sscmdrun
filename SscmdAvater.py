@@ -155,9 +155,12 @@ class SscmdAvater(object):
  
         #find <port>/all
         #find <col-name>:<col-value> .... 
-        if cmd[0]=='find' and self.usertype=='admin':
+        if cmd[0]=='find':
             if len(cmd)==1: 
                 return 0,'Missing arguments!\n'
+            if self.usertype=='user' and cmd[1]!=self.avaterId:
+                return 0, 'You can only change password for logined id.\n'
+
             args=cmd[1].split(':')
             userinfo={};info=None
             if len(args)==1:
