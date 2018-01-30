@@ -158,7 +158,7 @@ class SscmdAvater(object):
         if cmd[0]=='find':
             if len(cmd)==1: 
                 return 0,'Missing arguments!\n'
-            if self.usertype=='user' and self.avaterId=='11000':
+            if self.usertype=='user' and self.avaterId!='11000':
                 return 0, '只有线路管理员才能使用该功能.\n'
 
             args=cmd[1].split(':')
@@ -247,7 +247,7 @@ class SscmdAvater(object):
         if cmd[0]=='passwd':
             if len(cmd)<3 or not cmd[1].isdigit():
                 return 0,'Invalid argument. usage: passwd <port> <new password>.  example: passwd 11250 aaaa \n'
-            if self.usertype=='user' and cmd[1]!=self.avaterId and self.avaterId!=='11000':
+            if self.usertype=='user' and cmd[1]!=self.avaterId and self.avaterId!='11000':
                 return 0, '只有线路管理员 或 用户自己才能修改密码.\n'
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
             if len(userinfo)==0: 
