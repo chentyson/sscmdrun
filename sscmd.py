@@ -69,7 +69,7 @@ class CmdProtocol(LineReceiver):
           if msg: self.sendLine(msg)
           self.transport.loseConnection()
           return
-      self.transport.write('=======================\n');
+#      self.transport.write('=======================\n');
  
   def _cbLoginOK(self,(interface,avater,logout)):
       log.msg('login ok.')

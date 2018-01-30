@@ -183,6 +183,10 @@ class SscmdAvater(object):
                     atype='多人共享版'
                 else:
                     atype='个人版'
+                if self.usertype=='user':
+                    atype='######';
+                    ips='######';
+                    msg='';  #如果是普通用户,则省略详细信息
                 msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),atype,ips,str(rows[0][cols.index('enddate')]))
             return 0,msg
             
