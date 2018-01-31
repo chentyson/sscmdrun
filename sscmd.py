@@ -93,6 +93,7 @@ class MyFactory(ServerFactory):
     protocol = CmdProtocol
 
     def reloadUser(self):
+        log.msg('reload user infomation...');
         self.checker.users={};
         self.checker.addUser( _adminuser,_adminpass )
         userinfo={'status':'pay'}
@@ -107,9 +108,9 @@ class MyFactory(ServerFactory):
             self.checker.addUser(str(port),passwd)
         
     def getaportal(self):
+        log.msg('Get a portal...' )
         aportal=portal.Portal(SscmdRealm())
-        self.checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
-        self.reloadUser;
+        self.reloadUser();
         aportal.registerChecker(self.checker)
         return aportal
 
@@ -119,6 +120,7 @@ class MyFactory(ServerFactory):
         self.clients = {}
         self.dbinfo=db.ssdb()
         self.cfgfile=cfgshell.cfgfile()
+        self.checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
         self._portal = self.getaportal()
         
     def accountcheck(self):
