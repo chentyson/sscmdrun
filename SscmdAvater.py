@@ -176,7 +176,10 @@ class SscmdAvater(object):
                     if len(args)<=1: continue;
                     userinfo[args[0]]=args[1];
             cols,rows=dbinfo.find(userinfo);
-            msg=str(cols)+'\n'+'\n'.join(str(a) for a in rows) +'\n'+str(len(rows))+' records found!\n'
+            #如果记录数较多采用记录集返回
+            if len(rows)>=1:
+                msg=str(cols)+'\n'+'\n'.join(str(a) for a in rows) +'\n'+str(len(rows))+' records found!\n'
+            #如果只有一条,则用格式返回
             if info and len(rows)==1:
                 ips=str(rows[0][cols.index('ips')]);
                 if int(ips)>2:
