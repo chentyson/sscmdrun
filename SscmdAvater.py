@@ -191,6 +191,8 @@ class SscmdAvater(object):
                     ips='######';
                     msg='';  #如果是普通用户,则省略详细信息
                 msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),atype,ips,str(rows[0][cols.index('enddate')]))
+            if len(rows)<1:
+                msg='查无满足条件账户记录!';
             return 0,msg
             
         if cmd[0]=='cfgcount' and self.usertype=='admin':
