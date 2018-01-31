@@ -92,21 +92,25 @@ class CmdProtocol(LineReceiver):
 class MyFactory(ServerFactory):
     protocol = CmdProtocol
 
-    def getaportal(self):
-        aportal=portal.Portal(SscmdRealm())
-        checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
-        checker.addUser( _adminuser,_adminpass )
+    def reloadUser(self):
+        self.checker.users={};
+        self.checker.addUser( _adminuser,_adminpass )
         userinfo={'status':'pay'}
         cols,rows=self.dbinfo.find(userinfo);
         for i in range(len(rows)):
             port,passwd=rows[i][:2]
-            checker.addUser(str(port),passwd)
+            self.checker.addUser(str(port),passwd)
         userinfo={'status':'test'}
         cols,rows=self.dbinfo.find(userinfo);
         for i in range(len(rows)):
             port,passwd=rows[i][:2]
-            checker.addUser(str(port),passwd)
-        aportal.registerChecker(checker)
+            self.checker.addUser(str(port),passwd)
+        
+    def getaportal(self):
+        aportal=portal.Portal(SscmdRealm())
+        self.checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
+        self.reloadUser;
+        aportal.registerChecker(self.checker)
         return aportal
 
     def __init__(self, clients_max=1):

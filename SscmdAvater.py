@@ -262,6 +262,7 @@ class SscmdAvater(object):
             port=dbinfo.update(int(cmd[1]),userinfo);
             if port==0:
                 return 0,'Fail when change d-port password.\n'
+            self.reloadUser;  #重新加载用户资料
             log.msg('port[%d] password is changed to db.New userinfo[%s].' % (port,str(userinfo)))
             if not cfgfile.portpass().has_key(str(port)):
                 return 0,'Can not find f-port[%d] .\n' % port
