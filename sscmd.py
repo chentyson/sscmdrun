@@ -53,7 +53,7 @@ class CmdProtocol(LineReceiver):
              self.login(avater[0],avater[1])
           return;
       #login ok , get a avater
-      self.transport.write('-----------------------\n')
+      #self.transport.write('-----------------------\n')
       #process command line
       if self.factory.cfgfile==None or self.factory.dbinfo==None:
           log.msg("Can not get port config file or db file!")
