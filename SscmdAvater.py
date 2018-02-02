@@ -281,7 +281,7 @@ class SscmdAvater(object):
             if len(userinfo)==0: 
                 return 1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
             else: 
-                return 0, userinfo['enddate']
+                return 0, str(userinfo['enddate'])
         
         #pay a port. update db status to 'pay', check config file and create if not exists
         if cmd[0]=='pay' and self.usertype=='admin':
