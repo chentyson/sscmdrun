@@ -96,12 +96,7 @@ class MyFactory(ServerFactory):
         log.msg('reload user infomation...');
         self.checker.users={};
         self.checker.addUser( _adminuser,_adminpass )
-        userinfo={'status':'pay'}
-        cols,rows=self.dbinfo.find(userinfo);
-        for i in range(len(rows)):
-            port,passwd=rows[i][:2]
-            self.checker.addUser(str(port),passwd)
-        userinfo={'status':'test'}
+        userinfo={}
         cols,rows=self.dbinfo.find(userinfo);
         for i in range(len(rows)):
             port,passwd=rows[i][:2]
