@@ -99,7 +99,7 @@ class SscmdAvater(object):
             return False,'Command need %d args.\n' % n
         return True,''
 
-    def processCmd(self, line, dbinfo, cfgfile):
+    def processCmd(self, line, dbinfo, cfgfile,factory):
         if line[-1]=='\r': line=line[:-1]
   
         cmd = line.split(' ')    
@@ -262,7 +262,7 @@ class SscmdAvater(object):
             port=dbinfo.update(int(cmd[1]),userinfo);
             if port==0:
                 return 0,'Fail when change d-port password.\n'
-            self.reloadUser();  #重新加载用户资料
+            factory.reloadUser();  #重新加载用户资料
             log.msg('port[%d] password is changed to db.New userinfo[%s].' % (port,str(userinfo)))
             if not cfgfile.portpass().has_key(str(port)):
                 return 0,'Can not find f-port[%d] .\n' % port

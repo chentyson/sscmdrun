@@ -59,7 +59,7 @@ class CmdProtocol(LineReceiver):
           log.msg("Can not get port config file or db file!")
           self.transport.write('Fatal error! Command fail!\n')
           return
-      ret,msg=self._avater.processCmd(line,self.factory.dbinfo,self.factory.cfgfile)
+      ret,msg=self._avater.processCmd(line,self.factory.dbinfo,self.factory.cfgfile, self.factory)
       #output
       if ret==0 and msg:
           log.msg(msg)
