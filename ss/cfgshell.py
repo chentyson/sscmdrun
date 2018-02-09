@@ -127,7 +127,7 @@ class cfgfile:
             del configport[str(port)];
             return port,'';
         else:
-            cols,rows=dbinfo.find(userinfo);
+            #cols,rows=dbinfo.find(userinfo);
             return 0,'Can not find port[%d]' % port
      
     def clear_port(self):
