@@ -74,6 +74,7 @@ def stopport(port,dbinfo,cfgfile):
     if port>0:
         cfgfile.save_config();
         signalpass(port)
+        factory.reloadUser();  #重新加载用户资料
     else: 
         return 0,'Fail.%s\n' % msg
     return 0,'Ok. the port[%s] is stoped now.\n' % str(port)
@@ -227,6 +228,7 @@ class SscmdAvater(object):
             log.msg('Port[%s] is saved to config and actived ,password[%s]' % (port,userinfo['pass']))
             #reload pass
             signalpass(port)
+            factory.reloadUser();  #重新加载用户资料
             ips=userinfo['ips']
             if userinfo['status']=='test':
                 atype='临时'
@@ -262,13 +264,13 @@ class SscmdAvater(object):
             port=dbinfo.update(int(cmd[1]),userinfo);
             if port==0:
                 return 0,'Fail when change d-port password.\n'
-            factory.reloadUser();  #重新加载用户资料
             log.msg('port[%d] password is changed to db.New userinfo[%s].' % (port,str(userinfo)))
             if not cfgfile.portpass().has_key(str(port)):
                 return 0,'Can not find f-port[%d] .\n' % port
             cfgfile.portpass()[str(port)]=userinfo['pass'];
             cfgfile.save_config();
             signalpass(port); 
+            factory.reloadUser();  #重新加载用户资料
             log.msg('Port[%s] password is changed to config file. New password is [%s]' % (port,userinfo['pass']))
             return 0,'port[%d] password is changed! Active. \n' % (port)
   
@@ -311,6 +313,7 @@ class SscmdAvater(object):
             cfgfile.portpass()[str(port)]=userinfo['pass'];
             cfgfile.save_config();
             signalpass(port)
+            factory.reloadUser();  #重新加载用户资料
             log.msg('pay command. port[%s] is payed for [%s] months. New user infomation[%s]\n' % (cmd[1],cmd[2],str(userinfo)));
             return 0,'Ok. the port[%s] is payed for [%s] months. New end date[%s]\n' % (cmd[1],cmd[2],userinfo['enddate'])
   
@@ -342,6 +345,7 @@ class SscmdAvater(object):
             cfgfile.del_port(port);
             cfgfile.save_config();
             signalpass(port)
+            factory.reloadUser();  #重新加载用户资料
             log.msg('Port[%d] is deleted from config file!' % port)
             return 0,'OK,port[%d] is deleted. Userinfo is %s.\n' % (port,str(rows))
   
@@ -356,6 +360,7 @@ class SscmdAvater(object):
                     cfgfile.portpass()[str(port)]=r[cols.index('pass')];
             cfgfile.save_config();
             signalpass(port)
+            factory.reloadUser();  #重新加载用户资料
             log.msg('OK,config file is reseted to db pay user infomation!');
             return 0,'OK,config file is reseted to db pay user infomation!'
             
