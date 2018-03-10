@@ -19,7 +19,7 @@ def stopexp(myfac):
         log.msg('%d payed ports is expired,now try to stop them...' % len(rows))
     for row in rows:
         port=int(row[cols.index('port')])
-        ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile)
+        ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile,myfac)
         log.msg('sscmd system stop port[%d] auto.port info:%s' % (port,str(row)))
     if len(rows)>0:
         deferToThread(ssmail.mailexp,cols,rows)
@@ -28,7 +28,7 @@ def stopexp(myfac):
         log.msg('%d testing ports is expired,now try to stop them...' % len(rows))
     for row in rows:
         port=int(row[cols.index('port')])
-        ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile)
+        ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile,myfac)
         port,nouse=myfac.dbinfo.delete(port);
         if port==0:
             log.msg('Test port[%s] is expired but can not found in db!' % port)
