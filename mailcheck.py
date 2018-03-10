@@ -15,6 +15,8 @@ def getrows(dbinfo,expdays,status):
 def stopexp(myfac):
     #mail to payed user expired
     cols,rows=getrows(myfac.dbinfo,0,'pay')
+    if len(rows)>0:
+        log.msg('%d payed ports is expired,now try to stop them...' % len(rows))
     for row in rows:
         port=int(row[cols.index('port')])
         ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile)
@@ -22,6 +24,8 @@ def stopexp(myfac):
     if len(rows)>0:
         deferToThread(ssmail.mailexp,cols,rows)
     cols,rows=getrows(myfac.dbinfo,0,'test')
+    if len(rows)>0:
+        log.msg('%d testing ports is expired,now try to stop them...' % len(rows))
     for row in rows:
         port=int(row[cols.index('port')])
         ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile)
