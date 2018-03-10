@@ -8,7 +8,6 @@ from twisted.python import log
 from zope.interface import Interface,implements
 from twisted.cred import checkers,credentials,portal
 import string
-from subprocess import check_output,CalledProcessError
 import os
 import signal
 from config import config
@@ -18,12 +17,12 @@ _adminuser='tyson'
 _adminpass='IamadminTyson'
 
 def get_pid(name):
-    try:
-        a = check_output(["pidof",name]).split()
-        log.msg('find %d pid of %s' % (len(a),name))
-        return map(int,a)
-    except CalledProcessError, exc:
-        log.msg('raise a exception when get_pid: %s(%d)' % (exc.output,exc.returncode))
+    status,output = commands.getstatusoutput("pidof %s" % name)
+    log.msg('get pid status,outpu: %d,%s' % (status,output))
+    if status>0:
+        return map(int,output.split())
+    else:
+        return [];
 
 class SscmdRealm(object):
     implements(portal.IRealm)
