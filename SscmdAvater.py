@@ -63,7 +63,7 @@ def param2dict(cmd, paramfrom, adict):
             adict['enddate']=(datetime.strptime(arg[1],'%Y%m%d')+timedelta(days=2)).strftime('%Y%m%d');  #default test for 2 days
     return adict,''
 
-def stopport(port,dbinfo,cfgfile):
+def stopport(port,dbinfo,cfgfile,factory):
     userinfo={};
     userinfo['status']='stop';
     port=dbinfo.update(port,userinfo);
@@ -323,7 +323,7 @@ class SscmdAvater(object):
             if not ret: return 0,msg
             if not cmd[1].isdigit():
                 return 0,'Command paramater should be a port number! Such as: pay 11250. \n'
-            return stopport(int(cmd[1]),dbinfo,cfgfile)
+            return stopport(int(cmd[1]),dbinfo,cfgfile,factory)
     
         #del userinfo from db and config file
         if cmd[0]=='del' and self.usertype=='admin':
