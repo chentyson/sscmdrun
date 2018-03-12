@@ -20,9 +20,10 @@ def get_pid(name):
     status,output = commands.getstatusoutput("pidof %s" % name)
     log.msg('get pid status,outpu: %d,%s' % (status,output))
     if status>0:
-        return map(int,output.split())
-    else:
+        log.msg('because of fail commands, ss has no received reload signal.')
         return [];
+    else:
+        return map(int,output.split())
 
 class SscmdRealm(object):
     implements(portal.IRealm)
