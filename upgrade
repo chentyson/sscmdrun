@@ -1,3 +1,0 @@
-git pull
-systemctl restart supervisord
-supervisorctl restart ssrun
