@@ -379,14 +379,6 @@ class SscmdAvater(object):
             else:
                 return 0,'Ok,restart server done.\n%s\n' % output
   
-        if cmd[0]=='upgrade' and self.usertype=='admin':
-            (status,output)=commands.getstatusoutput('/root/sscmdrun/upgrade')
-            log.msg('Run upgrade,status(%s)' % status) 
-            if status>0:
-                return 0,'Fail,run upgrade error. \n%s\n' % output
-            else:
-                return 0,'Ok,\n%s\n' % output
-
         if cmd[0]=='cclp' and self.usertype=='admin':
             (status,output)=commands.getstatusoutput('/root/sscmdrun/cclp')
             log.msg('Run cclp,status(%s)' % status) 
