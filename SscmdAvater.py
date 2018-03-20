@@ -188,7 +188,9 @@ class SscmdAvater(object):
             #如果只有一条,则用格式返回
             if info and len(rows)==1:
                 ips=str(rows[0][cols.index('ips')]);
-                if int(ips)>2:
+                if str(rows[0][cols.index('status')])=='test':
+                    atype='临时'
+                elif int(ips)>2:
                     atype='多人共享版'
                 else:
                     atype='个人版'
