@@ -18,7 +18,7 @@ class CmdProtocol(LineReceiver):
 
   delimiter = '\n'
   def __init__(self):
-      log.msg('now init cmdProtocol...')
+      log.msg('init cmdProtocol...')
       self._avater=None
  
   def connectionMade(self):
