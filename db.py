@@ -15,7 +15,7 @@ class ssdb:
     def __init__(self):
         self.conn=sqlite3.connect('/etc/shadowsocks/sscmd.db');
         self.cur=self.conn.cursor();
-        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),startdate TEXT,enddate TEXT,ips integer,status varchar(10))');
+        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
         self.conn.commit();
 
     def add(self,port,userinfo={}):
@@ -28,14 +28,16 @@ class ssdb:
             enddate=userinfo.get('enddate')
             if enddate==None: enddate=0;
             ips=userinfo.get('ips') #购买的多少并发用户数
-            if ips==None: ips=1;
+            if ips==None: ips=1;  #default personal version,1 ip
+            devs=userinfo.get('devs') #how many devices
+            if devs==None: devs=2;  #default personal version,2 devices
             status=userinfo.get('status');
             if status==None: status='test'
             count=self.cur.execute('select count(*) from users where port=%d' % port).fetchall()[0][0];
             if count>0: 
                 log.err('db.py:Adding port[%d] is existed! return 0 back' % port)
                 return 0
-            self.cur.execute('insert into users(port,pass,qq,email,startdate,enddate,ips,status) values(%d,"%s","%s","%s","%s","%s",%d,"%s")' % (port,passwd,qq,email,startdate,enddate,ips,status));
+            self.cur.execute('insert into users(port,pass,qq,email,startdate,enddate,ips,devs,status) values(%d,"%s","%s","%s","%s","%s",%d,%d,"%s")' % (port,passwd,qq,email,startdate,enddate,ips,devs,status));
             self.conn.commit();
             #logging.info('added a new port[%d],userinfo:[%s]!' % (port,str(userinfo))) 
             return port
@@ -64,10 +66,13 @@ class ssdb:
                 sql+='enddate'+userinfo.get('enddate')
             if userinfo.get('ips')!=None:
                 if sql!='': sql+=' and ';
-                sql+='ips'+userinfo.get('ips')
+                sql+='ips'+userinfo.get('ips')  #参数中已经带了比较符号
             if userinfo.get('status')!=None:
                 if sql!='': sql+=' and ';
                 sql+='status like "%'+userinfo.get('status')+'%"'
+            if userinfo.get('devs')!=None:
+                if sql!='': sql +=' and ';
+                sql+='devs'+userinfo.get('devs')
         cols='port,pass,qq,email,startdate,enddate,ips,status';
         sqls='select '+cols+' from users';
         if sql!='':

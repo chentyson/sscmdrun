@@ -209,10 +209,11 @@ class SscmdAvater(object):
         if cmd[0]=='add' and self.usertype=='admin':
             #get parameters, init userinfo
             userinfo={}
-            userinfo['pass']=GenPassword();
-            userinfo['status']='test';
-            userinfo['ips']=2;
-            userinfo['startdate']=datetime.now().strftime('%Y%m%d');
+            userinfo['pass']=GenPassword();  #默认产生随机密码
+            userinfo['status']='test';  #默认临时账户
+            userinfo['ips']=1;
+            userinfo['devs']=2;
+            userinfo['startdate']=datetime.now().strftime('%Y%m%d'); 
             userinfo['enddate']=(datetime.now()+timedelta(days=1)).strftime('%Y%m%d');  #default test for 2 days
             userinfo,msg=param2dict(cmd,1,userinfo);
             if msg: return 0,msg
@@ -237,10 +238,13 @@ class SscmdAvater(object):
             signalpass(port)
             factory.reloadUser();  #重新加载用户资料
             ips=userinfo['ips']
+            devs=userinfo['devs']
             if userinfo['status']=='test':
                 atype='临时'
-            elif int(ips)>2:
-                atype='多人共享版'
+            elif int(ips)==1 and int(devs)>2:
+                atype='多设备共享IP'
+            elif int(ips)>2 and int(devs)>2:
+                atype='多设备独立IP'
             else: atype='个人版'
             return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'])
   
