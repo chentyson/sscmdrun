@@ -15,7 +15,7 @@ class ssdb:
     def __init__(self):
         self.conn=sqlite3.connect('/etc/shadowsocks/sscmd.db');
         self.cur=self.conn.cursor();
-        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
+        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
         self.conn.commit();
 
     def add(self,port,userinfo={}):
@@ -23,6 +23,7 @@ class ssdb:
             passwd=userinfo.get('pass');
             qq=userinfo.get('qq');
             email=userinfo.get('email')
+            wechat=userinfo.get('wechat');
             startdate=userinfo.get('startdate')
             if startdate==None: startdate=0;
             enddate=userinfo.get('enddate')
@@ -37,7 +38,7 @@ class ssdb:
             if count>0: 
                 log.err('db.py:Adding port[%d] is existed! return 0 back' % port)
                 return 0
-            self.cur.execute('insert into users(port,pass,qq,email,startdate,enddate,ips,devs,status) values(%d,"%s","%s","%s","%s","%s",%d,%d,"%s")' % (port,passwd,qq,email,startdate,enddate,ips,devs,status));
+            self.cur.execute('insert into users(port,pass,qq,wechat,email,startdate,enddate,ips,devs,status) values(%d,"%s","%s","%s","%s","%s","%s",%d,%d,"%s")' % (port,passwd,qq,wechat,email,startdate,enddate,ips,devs,status));
             self.conn.commit();
             #logging.info('added a new port[%d],userinfo:[%s]!' % (port,str(userinfo))) 
             return port
@@ -55,6 +56,9 @@ class ssdb:
         else:
             if userinfo.get('qq')!=None: 
                 sql='qq like "%'+userinfo.get('qq')+'%"'
+            if userinfo.get('wechat')!=None:
+                if sql!='': sql+=' and ';
+                sql='wechat like "%'+userinfo.get('wechat')+'%"'
             if userinfo.get('email')!=None:
                 if sql!='': sql+=' and ';
                 sql+='email like "%'+userinfo.get('email')+'%"'
@@ -73,7 +77,7 @@ class ssdb:
             if userinfo.get('devs')!=None:
                 if sql!='': sql +=' and ';
                 sql+='devs'+userinfo.get('devs')
-        cols='port,pass,qq,email,startdate,enddate,ips,status';
+        cols='port,pass,qq,wechat,email,startdate,enddate,ips,devs,status';
         sqls='select '+cols+' from users';
         if sql!='':
             sqls+=' where ' + sql; 
