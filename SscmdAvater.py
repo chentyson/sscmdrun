@@ -59,7 +59,7 @@ def param2dict(cmd, paramfrom, adict):
         arg=cmd[i].split(':');
         if len(arg)==1:
             return None,'Argument[%s] format error,example: add pass:12345 qq:1716677 status:pay. By default,status is test, ips is 1\n' % cmd[i];
-        if arg[0] in ('port','ips'): value=int(arg[1])
+        if arg[0] in ('port','ips','devs'): value=int(arg[1])
         else: value=arg[1];
         adict[arg[0]]=value;
         if arg[0]=='qq' and (not adict.has_key('email') or adict['email']==None or adict['email']=='None'):
@@ -211,7 +211,7 @@ class SscmdAvater(object):
             userinfo={}
             userinfo['pass']=GenPassword();  #默认产生随机密码
             userinfo['status']='test';  #默认临时账户
-            userinfo['ips']=1;
+            userinfo['ips']=2;
             userinfo['devs']=2;
             userinfo['startdate']=datetime.now().strftime('%Y%m%d'); 
             userinfo['enddate']=(datetime.now()+timedelta(days=1)).strftime('%Y%m%d');  #default test for 2 days
