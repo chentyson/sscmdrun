@@ -50,7 +50,7 @@ class CmdProtocol(LineReceiver):
           if len(avater)!=2:
              self.sendLine('Input user name and password(aplite by apace):');
           else:
-             str user=avater[0]
+             user=avater[0]
              if avater[0].isdigit() and int(avater[0])<30000:
                 user=str(int(avater[0]) + 20000)
              self.login(user,avater[1])

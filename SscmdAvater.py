@@ -295,7 +295,7 @@ class SscmdAvater(object):
                 return 1,'The port you queryed shold be logined.'
             userinfo=dbinfo.getuserinfo(port);
             if len(userinfo)==0: 
-                return 1, 'Fail,Can not find d-port[%d].' % port)
+                return 1, 'Fail,Can not find d-port[%d].' % port
             else: 
                 return 0, str('ok,%s' % userinfo['enddate'])
         
