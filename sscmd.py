@@ -44,7 +44,7 @@ class CmdProtocol(LineReceiver):
         del self.factory.clients[self.client_ip]
  
   def lineReceived(self, line):
-      log.msg('Cmd received from %s:%s,%s' % (self.client_ip,self.client_port, line))
+      log.msg('Cmd received from %s,%s' % (self.client_ip, line))
       if not self._avater:
           avater=line.strip().split(' ')
           if len(avater)!=2:

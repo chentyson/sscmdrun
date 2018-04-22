@@ -288,11 +288,14 @@ class SscmdAvater(object):
         if cmd[0]=='expdate':
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 1,'Invalid argument format'
-            if self.usertype=='user' and cmd[1]!=self.avaterId:
+            port=int(cmd[1])
+            if port<30000:
+                port=port+20000
+            if self.usertype=='user' and str(port)!=self.avaterId:
                 return 1,'The port you queryed shold be logined.'
-            userinfo=dbinfo.getuserinfo(int(cmd[1]));
+            userinfo=dbinfo.getuserinfo(port);
             if len(userinfo)==0: 
-                return 1, 'Fail,Can not find d-port[%d].' % int(cmd[1])
+                return 1, 'Fail,Can not find d-port[%d].' % port)
             else: 
                 return 0, str('ok,%s' % userinfo['enddate'])
         
