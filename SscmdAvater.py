@@ -188,12 +188,15 @@ class SscmdAvater(object):
             #如果只有一条,则用格式返回
             if info and len(rows)==1:
                 ips=str(rows[0][cols.index('ips')]);
-                if str(rows[0][cols.index('status')])=='test':
+                devs=str(rows[0][cols.index('devs')]);
+                stat=str(rows[0][cols.index('status')]);
+                if stat=='test':
                     atype='临时'
-                elif int(ips)>2:
-                    atype='多人共享版'
-                else:
-                    atype='个人版'
+                elif int(ips)==1 and int(devs)>2:
+                    atype='多设备共享IP'
+                elif int(ips)>2 and int(devs)>2:
+                    atype='多设备独立IP'
+                else: atype='个人版'
                 if self.usertype=='user':
                     atype='######';
                     ips='######';
