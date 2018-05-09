@@ -292,8 +292,8 @@ class SscmdAvater(object):
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 1,'Invalid argument format'
             port=int(cmd[1])
-            if port<30000:
-                port=port+20000
+            #if port<30000:
+            #    port=port+20000
             if self.usertype=='user' and str(port)!=self.avaterId:
                 return 1,'The port you queryed shold be logined.'
             userinfo=dbinfo.getuserinfo(port);
