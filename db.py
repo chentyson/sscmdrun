@@ -117,7 +117,7 @@ class ssdb:
      
     def getfreeport(self,ips):
         rows=self.cur.execute('select port from users where port>=11000 order by port').fetchall();
-        for i in range(31000,41000):
+        for i in range(11000,29999):
             try:
                 rows.index((i,));
             except ValueError:
