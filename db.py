@@ -3,6 +3,7 @@
 import sqlite3
 # import logging
 from twisted.python import log
+from datetime import datetime
 
 
 # logging.basicConfig(level=logging.DEBUG,
@@ -14,12 +15,28 @@ from twisted.python import log
 class ssdb:
 
     def __init__(self):
+        log.msg('begin init ssdb...');
         self.conn = sqlite3.connect('/etc/shadowsocks/sscmd.db');
         self.cur = self.conn.cursor();
         self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
-        self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,sqls varchar(200))')
-        self.cur.execute('create table if not exists synpcs(id integer primary key autoincrement,addr varchar(20),synid integer)')
+        try:
+            self.cur.execute('alter table users add column billdate TEXT'); 
+        except: pass;
+        try:
+            self.cur.execute('alter table users add column loginid TEXT'); 
+        except: pass;
+
+        self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
         self.conn.commit();
+        log.msg('end init ssdb.');
+
+    def addlog(self,loginid,port,cmd):
+        try:
+            self.cur.execute('insert into logs(loginid,time,port,cmd,userinfo) values("%s",datetime("now"),%d,"%s","%s")' % (loginid, port, cmd, self.getuserinfo(port)) );
+            self.conn.commit();
+        except Exception as e:
+            log.err('addlog error:%s' % e.message);
+            log.err();
 
     def add(self, port, userinfo={}):
         try:
@@ -28,6 +45,7 @@ class ssdb:
             email = userinfo.get('email')
             wechat = userinfo.get('wechat')
             startdate = userinfo.get('startdate')
+            loginid = userinfo.get('loginid')
             if startdate == None: startdate = 0
             enddate = userinfo.get('enddate')
             if enddate == None: enddate = 0
@@ -37,13 +55,14 @@ class ssdb:
             if devs == None: devs = 2;  # default personal version,2 devices
             status = userinfo.get('status');
             if status == None: status = 'test'
+            billdate = None;
+            if userinfo.get('billed') != None: 
+                billdate = startdate;
             count = self.cur.execute('select count(*) from users where port=%d' % port).fetchall()[0][0];
             if count > 0:
                 log.err('db.py:Adding port[%d] is existed! return 0 back' % port)
                 return 0
-            self.cur.execute(
-                'insert into users(port,pass,qq,wechat,email,startdate,enddate,ips,devs,status) values(%d,"%s","%s","%s","%s","%s","%s",%d,%d,"%s")' % (
-                port, passwd, qq, wechat, email, startdate, enddate, ips, devs, status));
+            self.cur.execute('insert into users(port,pass,qq,wechat,email,startdate,enddate,ips,devs,status,billdate,loginid) values(%d,"%s","%s","%s","%s","%s","%s",%d,%d,"%s","%s","%s")' % (port, passwd, qq, wechat, email, startdate, enddate, ips, devs, status, billdate,loginid));
             self.conn.commit();
             # logging.info('added a new port[%d],userinfo:[%s]!' % (port,str(userinfo)))
             return port
@@ -82,11 +101,13 @@ class ssdb:
             if userinfo.get('devs') != None:
                 if sql != '': sql += ' and ';
                 sql += 'devs' + userinfo.get('devs')
-        cols = 'port,pass,qq,wechat,email,startdate,enddate,ips,devs,status';
+        cols = 'port,pass,qq,wechat,email,startdate,enddate,billdate,ips,devs,status,loginid';
         sqls = 'select ' + cols + ' from users';
         if sql != '':
             sqls += ' where ' + sql;
         log.msg(sqls);
+        #rows = self.cur.execute(sqls).fetchall();
+        #log.msg('%d records found!' % len(rows));
         # load data from db
         return cols.split(','), self.cur.execute(sqls).fetchall();
 
@@ -128,3 +149,45 @@ class ssdb:
             except ValueError:
                 return i;
         return 0;
+    
+    def genbills(self,loginid):
+        cols,rows = self.find({'loginid':loginid});
+        iport = cols.index('port');
+        iqq = cols.index('qq');
+        iemail = cols.index('email');
+        iwechat = cols.index('wechat');
+        ibill = cols.index('billdate');
+        istart = cols.index('startdate');
+        iend = cols.index('enddate');
+        ista = cols.index('status');
+        bills = [];
+        bill = {};
+        totalmonth = 0;
+        if len(rows)== 0: return bills;
+        for row in rows:
+            log.msg(row);
+            status = row[ista];
+            if status == 'test': continue;
+
+            billdate = row[ibill];
+            enddate = row[iend];
+            #if billdate no data,equal to startdate
+            if billdate == None or billdate == '' or billdate=='None':
+                billdate = row[istart];
+            if billdate>=enddate: continue;
+
+            dend = datetime.strptime(enddate,"%Y%m%d")
+            dbill = datetime.strptime(billdate,"%Y%m%d")
+            months = ((dend-dbill).days + 10)/30; 
+            if months > 0:
+                bill['port']=row[iport];
+                bill['billdate']=billdate;
+                bill['enddate']=enddate;
+                bill['paymonth']=months;
+                bill['qq']=row[iqq];
+                bill['email']=row[iemail];
+                bill['wechat']=row[iwechat];
+                bills.append(bill);
+                totalmonth += months;
+        bills.append({'port':'#','paymonth':totalmonth});
+        return bills;

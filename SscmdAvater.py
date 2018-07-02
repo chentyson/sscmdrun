@@ -218,6 +218,7 @@ class SscmdAvater(object):
             userinfo['devs']=2;
             userinfo['startdate']=datetime.now().strftime('%Y%m%d'); 
             userinfo['enddate']=(datetime.now()+timedelta(days=1)).strftime('%Y%m%d');  #default test for 2 days
+            userinfo['loginid']=self.avaterId;
             userinfo,msg=param2dict(cmd,1,userinfo);
             if msg: return 0,msg
             #get free port and save to db
@@ -237,6 +238,7 @@ class SscmdAvater(object):
             log.msg('Port[%d] is new added to mem(not saved),password[%s]' % (port,userinfo['pass']))
             cfgfile.save_config();
             log.msg('Port[%s] is saved to config and actived ,password[%s]' % (port,userinfo['pass']))
+            dbinfo.addlog(self.avaterId,port,line);
             #reload pass
             signalpass(port)
             factory.reloadUser();  #重新加载用户资料
@@ -263,6 +265,7 @@ class SscmdAvater(object):
             if port==0:
                 return 0,'Fail when update user information to db.\n'
             log.msg('port[%d] is updated. New user information[%s].' % (port,str(userinfo)))
+            dbinfo.addlog(self.avaterId,port,line);
             return 0,'port[%d] is updated. New user information[%s]. \n' % (port,str(userinfo))
   
         if cmd[0]=='passwd':
@@ -286,6 +289,7 @@ class SscmdAvater(object):
             signalpass(port); 
             factory.reloadUser();  #重新加载用户资料
             log.msg('Port[%s] password is changed to config file. New password is [%s]' % (port,userinfo['pass']))
+            dbinfo.addlog(self.avaterId,port,line);
             return 0,'port[%d] password is changed! Active. \n' % (port)
   
         if cmd[0]=='expdate':
@@ -332,6 +336,7 @@ class SscmdAvater(object):
             signalpass(port)
             factory.reloadUser();  #重新加载用户资料
             log.msg('pay command. port[%s] is payed for [%s] months. New user infomation[%s]\n' % (cmd[1],cmd[2],str(userinfo)));
+            dbinfo.addlog(self.avaterId,port,line);
             return 0,'Ok. the port[%s] is payed for [%s] months. New end date[%s]\n' % (cmd[1],cmd[2],userinfo['enddate'])
   
         #set status 'stop' in db, and delete port from config file 
@@ -340,7 +345,10 @@ class SscmdAvater(object):
             if not ret: return 0,msg
             if not cmd[1].isdigit():
                 return 0,'Command paramater should be a port number! Such as: pay 11250. \n'
-            return stopport(int(cmd[1]),dbinfo,cfgfile,factory)
+            port=int(cmd[1])
+            ret,msg = stopport(int(cmd[1]),dbinfo,cfgfile,factory)
+            dbinfo.addlog(self.avaterId,port,line);
+            return ret,msg 
     
         #del userinfo from db and config file
         if cmd[0]=='del' and self.usertype=='admin':
@@ -364,6 +372,7 @@ class SscmdAvater(object):
             signalpass(port)
             factory.reloadUser();  #重新加载用户资料
             log.msg('Port[%d] is deleted from config file!' % port)
+            dbinfo.addlog(self.avaterId,port,line);
             return 0,'OK,port[%d] is deleted. Userinfo is %s.\n' % (port,str(rows))
   
         if cmd[0]=='cfgreset':  #reset config file, depend on sscmd.db
@@ -379,11 +388,13 @@ class SscmdAvater(object):
             signalpass(port)
             factory.reloadUser();  #重新加载用户资料
             log.msg('OK,config file is reseted to db pay user infomation!');
+            dbinfo.addlog(self.avaterId,port,line);
             return 0,'OK,config file is reseted to db pay user infomation!'
             
         if cmd[0]=='restart' and self.usertype=='admin':
             (status,output)=cfgfile.commit()
             log.msg('Commit,status(%s),output(%s)' % (status,output)) 
+            dbinfo.addlog(self.avaterId,port,line);
             if status>0: 
                 return 0,'Fail,Restart server error. \n%s\n' % output
             else:
@@ -406,6 +417,11 @@ class SscmdAvater(object):
                 return 0,'Fail,run netstat error. \n%s\n' % output
             else:
                 return 0,output
+
+        if cmd[0]=='bills':
+            if len(cmd)>1 and not self.usertype=='admin':
+                return 0,'Invalid argument. \n'
+        return 0,json.dumps(dbinfo.genbills(self.avaterId));            
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
