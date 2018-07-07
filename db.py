@@ -25,8 +25,12 @@ class ssdb:
         try:
             self.cur.execute('alter table users add column loginid TEXT'); 
         except: pass;
+        try:
+            self.cur.execute('alter table users add column deldate TEXT'); 
+        except: pass;
 
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
+        self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
         self.conn.commit();
         log.msg('end init ssdb.');
 
@@ -76,9 +80,11 @@ class ssdb:
         log.msg('now find records,param:%s' % str(userinfo));
         sql = '';
         if userinfo.get('port') != None:
+            if sql != '': sql += ' and ';
             sql = 'port=%d' % userinfo.get('port')
         else:
             if userinfo.get('qq') != None:
+                if sql != '': sql += ' and ';
                 sql = 'qq like "%' + userinfo.get('qq') + '%"'
             if userinfo.get('wechat') != None:
                 if sql != '': sql += ' and ';
@@ -133,10 +139,11 @@ class ssdb:
         # rec.update(userinfo);  #update rec from userinfo
         # save to db
 
-    def delete(self, port):
+    def delete(self, loginid, port):
         cols, rows = self.find({'port': port});
         if len(rows) == 0: return 0, [];
         if rows[0][cols.index('status')] != 'stop': return -1, [];
+        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,"%s",datetime("now") from users where port=%d' % (loginid,port));
         self.cur.execute('delete from users where port=%d' % port);
         self.conn.commit()
         return port, dict(zip(cols, rows[0]))

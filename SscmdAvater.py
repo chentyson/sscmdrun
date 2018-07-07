@@ -356,7 +356,7 @@ class SscmdAvater(object):
             if not ret: return 0,msg
             if not cmd[1].isdigit(): 
                 return 0,'Fail,invalid argument, it should be a num. example: del 11001.\n'
-            port,rows=dbinfo.delete(int(cmd[1]));
+            port,rows=dbinfo.delete(self.avaterId,int(cmd[1]));
             if port==0:
                 log.msg('Port[%s] is not found in db!' % port)
             #    self.transport.write('Fail,delete user from db fail. Maybe the port[%s] can not be found.\n' % cmd[1]);
@@ -421,7 +421,7 @@ class SscmdAvater(object):
         if cmd[0]=='bills':
             if len(cmd)>1 and not self.usertype=='admin':
                 return 0,'Invalid argument. \n'
-        return 0,json.dumps(dbinfo.genbills(self.avaterId));            
+            return 0,json.dumps(dbinfo.genbills(self.avaterId));            
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
