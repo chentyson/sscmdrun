@@ -30,7 +30,7 @@ class ssdb:
         except: pass;
 
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
-        self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
+        self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
         self.conn.commit();
         log.msg('end init ssdb.');
 
@@ -143,7 +143,7 @@ class ssdb:
         cols, rows = self.find({'port': port});
         if len(rows) == 0: return 0, [];
         if rows[0][cols.index('status')] != 'stop': return -1, [];
-        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,"%s",datetime("now") from users where port=%d' % (loginid,port));
+        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,"%s",datetime("now") from users where port=%d' % (loginid,port));
         self.cur.execute('delete from users where port=%d' % port);
         self.conn.commit()
         return port, dict(zip(cols, rows[0]))
@@ -158,7 +158,12 @@ class ssdb:
         return 0;
     
     def genbills(self,loginid):
-        cols,rows = self.find({'loginid':loginid});
+        col = 'port,qq,email,wechat,billdate,startdate,enddate,status';
+        sql = 'select %s,"",0 from users union select %s,delloginid,deldate from delusers' % (col,col)
+        log.msg(sql); 
+        rows=self.cur.execute(sql).fetchall()
+        cols = col.split(',')
+        
         iport = cols.index('port');
         iqq = cols.index('qq');
         iemail = cols.index('email');
@@ -167,12 +172,13 @@ class ssdb:
         istart = cols.index('startdate');
         iend = cols.index('enddate');
         ista = cols.index('status');
+        ideldate = ista + 2;
+
         bills = [];
         bill = {};
         totalmonth = 0;
         if len(rows)== 0: return bills;
         for row in rows:
-            log.msg(row);
             status = row[ista];
             if status == 'test': continue;
 
@@ -194,6 +200,7 @@ class ssdb:
                 bill['qq']=row[iqq];
                 bill['email']=row[iemail];
                 bill['wechat']=row[iwechat];
+                bill['deldate']=row[ideldate];
                 bills.append(bill);
                 totalmonth += months;
         bills.append({'port':'#','paymonth':totalmonth});
