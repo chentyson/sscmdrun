@@ -421,7 +421,7 @@ class SscmdAvater(object):
         if cmd[0]=='bills':
             if len(cmd)>1 and not self.usertype=='admin':
                 return 0,'Invalid argument. \n'
-            return 0,json.dumps(dbinfo.genbills(self.avaterId));            
+            return 0, '%s|#end#' % json.dumps(dbinfo.genbills(self.avaterId));            
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
