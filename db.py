@@ -194,6 +194,7 @@ class ssdb:
             months = ((dend-dbill).days + 10)/30; 
             if months > 0:
                 bill['port']=row[iport];
+                bill['startdate']=row[istart]
                 bill['billdate']=billdate;
                 bill['enddate']=enddate;
                 bill['paymonth']=months;
