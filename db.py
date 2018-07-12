@@ -192,6 +192,7 @@ class ssdb:
             dend = datetime.strptime(enddate,"%Y%m%d")
             dbill = datetime.strptime(billdate,"%Y%m%d")
             months = ((dend-dbill).days + 10)/30; 
+            
             if months > 0:
                 bill['port']=row[iport];
                 bill['startdate']=row[istart]
@@ -202,7 +203,7 @@ class ssdb:
                 bill['email']=row[iemail];
                 bill['wechat']=row[iwechat];
                 bill['deldate']=row[ideldate];
-                bills.append(bill);
+                bills.append(bill.copy());
                 totalmonth += months;
         bills.append({'port':'#','paymonth':totalmonth});
         return bills;
