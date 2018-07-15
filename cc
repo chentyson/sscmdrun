@@ -1,0 +1,1 @@
+netstat -anp | awk /tcp.*:11[0-9][0-9][0-9].*:[0-9]/'{split($4,ip1,":");split($5,ip2,":");print ip1[1],ip1[2],ip2[1]}' | sort -k2 -k3 -n | awk 'BEGIN{count=0} {if(aa!=$2){aa=$2;c1=0;c2=0;bb=""};if(bb!=$3){bb=$3;c1++};c2++;dic[aa]=c1" "c2;count++} END {for(key in dic)print key,dic[key];print "all connections count is:",count}' | sort -k2 -k3 -n
