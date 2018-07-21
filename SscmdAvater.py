@@ -421,7 +421,34 @@ class SscmdAvater(object):
         if cmd[0]=='bills':
             if len(cmd)>1 and not self.usertype=='admin':
                 return 0,'Invalid argument. \n'
-            return 0, '%s|#end#' % json.dumps(dbinfo.genbills(self.avaterId));            
+            return 0, json.dumps(dbinfo.genbills(self.avaterId));            
+
+        if cmd[0]=='expired':
+            if len(cmd)<2 or not cmd[1].isdigit():
+                return 0,'Invalid command. usage: expired <days num>. example:expired 10.\n'
+            userinfo={}
+            expdate=sstime.now()+timedelta(days=int(cmd[1]));
+            userinfo['enddate']='<'+expdate.strftime('%Y%m%d');
+            userinfo['status']='pay';
+            cols,rows = dbinfo.find(userinfo);
+            rets=[]
+            ret={}
+            iport=cols.index('port');
+            ienddate=cols.index('enddate');
+            iqq=cols.index('qq');
+            iwechat=cols.index('wechat');
+            iemail=cols.index('email');
+            for r in rows:
+                ret['port']=r[iport];
+                ret['enddate']=r[ienddate];
+                ret['qq']=r[iqq];
+                ret['wechat']=r[iwechat];
+                ret['email']=r[iemail];
+                dend=datetime.strptime(r[ienddate],"%Y%m%d")
+                ret['left']=(dend-datetime.now()).days
+                rets.append(ret)
+            return 0,json.dumps(rets); 
+
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
