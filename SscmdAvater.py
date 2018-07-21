@@ -445,7 +445,7 @@ class SscmdAvater(object):
                 ret['wechat']=r[iwechat];
                 ret['email']=r[iemail];
                 dend=datetime.strptime(r[ienddate],"%Y%m%d")
-                ret['left']=(dend-datetime.now()).days
+                ret['left']=(dend-datetime.now()).days + 1;
                 rets.append(ret.copy())
             return 0,json.dumps(rets); 
 
