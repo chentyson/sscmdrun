@@ -1,17 +1,55 @@
 #coding=utf-8
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
 
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 from datetime import datetime
 import sstime
 from config import config
+from twisted.python import log
+from email.utils import formataddr
 
-def mail(subject, text_content, html_content, email):
-    msg = EmailMultiAlternatives(subject, text_content, '震撼科技<1716677@qq.com>', [email,'1716677@qq.com'])
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
+
+my_comp='震撼科技'
+my_sender='info@boosoo.cn'    # 发件人邮箱账号
+my_pass = 'Zhenhan1716677'  # 发件人邮箱密码
+my_smtpserver='smtp.mxhichina.com'  #发件服务器地址
+my_smtpport=465
+
+def mail(subject,text_content,html_content,my_user):
+    ret=True
+    #msg['From'] = Header(formataddr([my_comp,my_sender]) 'utf-8')
+    #msg['To'] =  Header(formataddr(["震撼用户",my_user]), 'utf-8')
+    #msg['Subject'] = Header(subject, 'utf-8')
+    try:
+        if html_content=='':
+            # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
+            msg = MIMEText(text_content, 'plain', 'utf-8')
+        else:
+            msg=MIMEText(html_content,'html','utf-8')
+
+        msg['From']=formataddr([my_comp,my_sender])  # 括号里的对应发件人邮箱昵称、发件人邮箱账号
+        msg['To']=formataddr([my_user,my_user])          # 括号里的对应收件人邮箱昵称、收件人邮箱账号
+        msg['Bcc']='tyson@boosoo.cn'
+        msg['Subject']=subject                # 邮件的主题，也可以说是标题
+        
+        server=smtplib.SMTP_SSL(my_smtpserver, my_smtpport)  # 发件人邮箱中的SMTP服务器，端口是25
+        server.login(my_sender, my_pass)  # 括号中对应的是发件人邮箱账号、邮箱密码
+        server.sendmail(my_sender,[my_user,],msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
+        server.quit()  # 关闭连接
+    except Exception as e:  # 如果 try 中的语句没有执行，则会执行下面的 ret=False
+        ret=False
+        log.err('mail exception:%s' % e.message)
+        log.err()
+    return ret
+
+#def mail(subject, text_content, html_content, email):
+#    message = MIMEText(html_content,'html','utf-8')
+#    message['From'] = Header("震撼科技<1716677@qq.com>",'utf-8')
+#    message['To'] = Header(
+#    msg = EmailMultiAlternatives(subject, text_content, '震撼科技<1716677@qq.com>', [email,'1716677@qq.com'])
+#    msg.attach_alternative(html_content, "text/html")
+#    msg.send()
     
 
 def mailwillexp(cols,rows):
@@ -19,12 +57,14 @@ def mailwillexp(cols,rows):
     text_content = u'尊敬的震撼网络用户：\n    您所使用的以下震撼网络账户：\n\n      端口:%d\n    服务器:%s\n账户到期日:%s\n\n    即将到期，届时网络服务将自动停止。为了不影响您的正常使用，特提醒您提前续费。以下为续费/购买的淘宝链接:\n\n    https://item.taobao.com/item.htm?id=537154137831 \n\n    注意：在拍入的商品备注栏务必填写您所续费的端口号，以便工作>人员为您端口自动续期。'
     html_content = u'<!DOCTYPE html><html><body>尊敬的震撼网络用户，您所使用的以下震撼网络账户：<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp服务器端口:<b>%d</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp服务器地址:<b>%s</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户到期日:<b>%s</b><br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp即将在&nbsp<b>%d天</b>&nbsp后到期>，届时网络服务将自动停止，为了不影响您的正常使用，特提醒您提前续费。请点击下方震撼网络账户续费淘宝链接进行续费续期：<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<a href="https://item.taobao.com/item.htm?id=537154137831"><b>https://item.taobao.com/item.htm?id=537154137831</b></a> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp注意：在拍入>商品时，请<b>务必在备注栏填写您所续费的端口号</b>，以便工作人员为您端口自动续期。<br><br>震撼科技&nbsp&nbsp QQ:1716677<br>祝使用愉快！</body></html>'
     
+    message = MIMEText(html_content,'html','utf-8')
+
     for row in rows:
         end=datetime.strptime(row[cols.index('enddate')],'%Y%m%d')
         end=end.replace(tzinfo=sstime.tz)
         days=(end-sstime.now()).days+1
         #mail to user every 3 days if days>20, mail every 2 days if days>10, mail every day if days<=10
-        if (days>20 and days%3==0) or (days>10 and days%2==0) or (days<=10):
+        if (days>10 and days%2==0) or (days<=10):
             port=int(row[cols.index('port')])
             enddate=end.strftime('%Y-%m-%d')
             email=row[cols.index('email')]
