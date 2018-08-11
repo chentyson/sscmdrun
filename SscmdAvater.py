@@ -1,20 +1,21 @@
 #coding=utf-8
 import sstime
-from random import choice
 from datetime import datetime,timedelta
 import json
 import commands
 from twisted.python import log
 from zope.interface import Interface,implements
 from twisted.cred import checkers,credentials,portal
-import string
 import os
 import signal
 from config import config
+import telnetlib
 
 #define admin user and pass
 _adminuser='tyson'
 _adminpass='IamadminTyson'
+_newreg='newreg'
+_newregpass='newregPass'
 
 def get_pid(name):
     status,output = commands.getstatusoutput("pidof %s" % name)
@@ -33,9 +34,11 @@ class SscmdRealm(object):
             log.msg('requestAvater: %s' % avaterId);
             avater=SscmdAvater()
             avater.avaterId=avaterId
-            if avaterId!=_adminuser: 
-                avater.usertype='user'
-            else: avater.usertype='admin'
+            if avaterId==_adminuser: 
+                avater.usertype='admin'
+            elif avaterId==_newreg:  #just for register
+                avater.usertype='reg'
+            else: avater.usertype='user'
             return ISscmdAvaterInterface,avater,avater.logout
 
         raise NotImplementedError('''''This Realm only support IEchoAvatarInterface''')
@@ -49,10 +52,6 @@ class ISscmdAvaterInterface(Interface):
         '''''
         deal with command line 
         '''
-
-#gen a random password
-def GenPassword(length=8,chars=string.digits):
-    return ''.join([choice(chars) for i in range(length)])
 
 def param2dict(cmd, paramfrom, adict):
     for i in range(paramfrom,len(cmd)):   #command example: add pass:12345 qq:1716677 startdate:20180101 ,  so loop for every argument
@@ -212,7 +211,7 @@ class SscmdAvater(object):
         if cmd[0]=='add' and self.usertype=='admin':
             #get parameters, init userinfo
             userinfo={}
-            userinfo['pass']=GenPassword();  #默认产生随机密码
+            userinfo['pass']=dbinfo.GenPassword();  #默认产生随机密码
             userinfo['status']='test';  #默认临时账户
             userinfo['ips']=2;
             userinfo['devs']=2;
@@ -418,12 +417,12 @@ class SscmdAvater(object):
             else:
                 return 0,output
 
-        if cmd[0]=='bills':
+        if cmd[0]=='bills':  #gen bills of ports which not payed
             if len(cmd)>1 and not self.usertype=='admin':
                 return 0,'Invalid argument. \n'
             return 0, json.dumps(dbinfo.genbills(self.avaterId));            
 
-        if cmd[0]=='expired':
+        if cmd[0]=='expired':  #return all ports which expired after n days
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 0,'Invalid command. usage: expired <days num>. example:expired 10.\n'
             userinfo={}
@@ -448,6 +447,37 @@ class SscmdAvater(object):
                 ret['left']=(dend-datetime.now()).days + 1;
                 rets.append(ret.copy())
             return 0,json.dumps(rets); 
+
+        if cmd[0]=='testport':  #test a remote port
+            if len(cmd)<3 or not cmd[1].isdigit():
+                return 0,'Invalid command. usage: testport <host> <port>.\n'
+            try:
+                tn = telnetlib.Telnet(cmd[1],port=int(cmd[2]),timeout=5)
+                tn.close()
+                return 0,'ok' 
+            except:
+                return 0,'fail'
+
+        if cmd[0]=='genvcode':  #generate a verification code and save and mail it, ex: genvcode 1716677@qq.com 
+            if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
+                return 0,'Invalid command.usage: genvcode <email address>.\n'
+            email=cmd[1]
+            vcode=dbinfo.genvcode(email)
+            if vcode=='':
+                return 0,'Can not a verification code,check you email is correct~'
+            return 0,'ok'
+
+        if cmd[0]=='reg':
+            if len(cmd)<2:
+                return 0,'Invalid command.usage:reg <register info json>.\n'
+            try:
+                logininfo=json.loads(cmd[1])
+            except Exception as e:
+                log.err('register cmmand failed,wrong json format:%s, error:%s' % (cmd[1],e.message))
+                log.err()
+                return 0,'Invalid command.wrong register information format.\n'
+            ret,msg = dbinfo.reg(logininfo);
+            return 0,msg
 
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');

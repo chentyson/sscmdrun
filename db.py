@@ -4,7 +4,9 @@ import sqlite3
 # import logging
 from twisted.python import log
 from datetime import datetime
-
+import ssmail
+import string
+from random import choice
 
 # logging.basicConfig(level=logging.DEBUG,
 #                format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -31,8 +33,58 @@ class ssdb:
 
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
         self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
+        self.cur.execute('create table if not exists reg(id integer PRIMARY KEY autoincrement,email TEXT unique,pass TEXT,name TEXT,qq TEXT,phone TEXT,vcode TEXT,vcodetime datetime,status TEXT)')
         self.conn.commit();
         log.msg('end init ssdb.');
+
+    def GenPassword(self,length=8,chars=string.digits):
+        return ''.join([choice(chars) for i in range(length)])
+
+    def genvcode(self,email):
+       code=self.GenPassword(6,string.digits)
+       try:
+           self.cur.execute('replace into reg(email,vcode,vcodetime) values("%s","%s",datetime("now","30 minutes"))' % (email,code));
+           self.conn.commit();
+           if not ssmail.mail('震撼网络服务注册验证码','你本次注册验证码是:%s\n注意：验证码在你点获取验证码时起30分钟内有效。' % code,'',email):
+               return ''
+           else: return code
+       except Exception as e:
+           log.err('gen and mail verification code error:%s' % e.message)
+           log.err()
+           return ''
+
+    def reg(self,logininfo={}):
+        try:
+            log.msg('register new id:%s' % logininfo)
+            email = logininfo.get('email')
+            qq = logininfo.get('qq')
+            passwd = logininfo.get('pass')
+            name = logininfo.get('name')
+            phone = logininfo.get('phone')
+            vcode = logininfo.get('vcode')
+            if email==None or passwd==None:
+                return -1,'invalid register information!'
+            rows = self.cur.execute('select vcode,vcodetime from reg where email="%s"' % email).fetchall()
+            if len(rows)<1 or vcode!=row[0][0]:
+                return -2,'need the right email and verification code!'
+            #now register
+            self.cur.execute('replace info reg(email,pass,name,qq,phone,status) values("%s","%s","%s","%s","%s","pending")' % (email,passwd,name,qq,phone))
+            self.conn.commit();
+            return 0,'ok'
+        except Exception as e:
+            log.err('register fail! error:%s' % e.message)
+            log.err()
+            return -3,'register failed! got an exception!'
+
+    def regapprove(self,email):
+        try:
+            log.msg('register approving %s...' % email)
+            self.cur.execute('update reg set status="ok" where email="%s"' % email)
+            return 0,'ok'
+        except Exception as e:
+            log.err('register approve failed! error:%s' % e.message)
+            log.err()
+            return -1,'register approve failed!'
 
     def addlog(self,loginid,port,cmd):
         try:
@@ -207,3 +259,9 @@ class ssdb:
                 totalmonth += months;
         bills.append({'port':'#','paymonth':totalmonth});
         return bills;
+
+    def login(self,email,passwd):
+        rows=self.cur.execute('select name,qq from reg where email="%s" and pass="%s"' % (email,passwd)).fetchall()
+        if len(rows)<1:
+            return -1,'uknown email or wrong password!'
+        return 0,rows
