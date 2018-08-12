@@ -65,10 +65,10 @@ class ssdb:
             if email==None or passwd==None:
                 return -1,'invalid register information!'
             rows = self.cur.execute('select vcode,vcodetime from reg where email="%s"' % email).fetchall()
-            if len(rows)<1 or vcode!=row[0][0]:
+            if len(rows)<1 or vcode!=rows[0][0]:
                 return -2,'need the right email and verification code!'
             #now register
-            self.cur.execute('replace info reg(email,pass,name,qq,phone,status) values("%s","%s","%s","%s","%s","pending")' % (email,passwd,name,qq,phone))
+            self.cur.execute('replace into reg(email,pass,name,qq,phone,status) values("%s","%s","%s","%s","%s","pending")' % (email,passwd,name,qq,phone))
             self.conn.commit();
             return 0,'ok'
         except Exception as e:
@@ -79,12 +79,14 @@ class ssdb:
     def regapprove(self,email):
         try:
             log.msg('register approving %s...' % email)
-            self.cur.execute('update reg set status="ok" where email="%s"' % email)
+            ret = self.cur.execute('update reg set status="ok" where email="%s"' % email)
+            self.conn.commit();
+            #log.msg('update result:%s' % ret.fetchall())
             return 0,'ok'
         except Exception as e:
             log.err('register approve failed! error:%s' % e.message)
             log.err()
-            return -1,'register approve failed!'
+            return 0,'register approve failed!'
 
     def addlog(self,loginid,port,cmd):
         try:
