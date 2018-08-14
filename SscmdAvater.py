@@ -320,6 +320,7 @@ class SscmdAvater(object):
             end=datetime.strptime(userinfo['enddate'],'%Y%m%d').date()
             if end<datetime.now().date():
                 end = datetime.now().date();
+                userinfo['billdate']=datetime.strftime(end,'%Y%m%d')
             userinfo['status']='pay'
             end=sstime.monthdelta(end,int(cmd[2]));
             end=datetime.strftime(end,'%Y%m%d')
@@ -417,12 +418,12 @@ class SscmdAvater(object):
             else:
                 return 0,output
 
-        if cmd[0]=='bills':  #gen bills of ports which not payed
-            if len(cmd)>1 and not self.usertype=='admin':
+        if cmd[0]=='bills' and self.usertype=='admin':  #gen bills of ports which not payed
+            if len(cmd)>1:
                 return 0,'Invalid argument. \n'
             return 0, json.dumps(dbinfo.genbills(self.avaterId));            
 
-        if cmd[0]=='expired':  #return all ports which expired after n days
+        if cmd[0]=='expired' and self.usertype=='admin':  #return all ports which expired after n days
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 0,'Invalid command. usage: expired <days num>. example:expired 10.\n'
             userinfo={}
@@ -458,7 +459,7 @@ class SscmdAvater(object):
             except:
                 return 0,'fail'
 
-        if cmd[0]=='genvcode':  #generate a verification code and save and mail it, ex: genvcode 1716677@qq.com 
+        if cmd[0]=='genvcode' and self.usertype=='reg':  #generate a verification code and save and mail it, ex: genvcode 1716677@qq.com 
             if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
                 return 0,'Invalid command.usage: genvcode <email address>.\n'
             email=cmd[1]
@@ -467,7 +468,7 @@ class SscmdAvater(object):
                 return 0,'Can not a verification code,check you email is correct~'
             return 0,'ok'
 
-        if cmd[0]=='reg':
+        if cmd[0]=='reg' and self.usertype=='reg':
             if len(cmd)<2:
                 return 0,'Invalid command.usage:reg <register info json>.\n'
             try:
@@ -479,6 +480,10 @@ class SscmdAvater(object):
             ret,msg = dbinfo.reg(logininfo);
             return 0,msg
 
+        if cmd[0]=='approve' and self.usertype=='admin':
+            if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
+                return 0,'Invalid command. usage:approve <email>.\n'
+            return dbinfo.regapprove(cmd[1])
 
         return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
