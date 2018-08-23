@@ -307,7 +307,7 @@ class SscmdAvater(object):
         
         #pay a port. update db status to 'pay', check config file and create if not exists
         if cmd[0]=='pay' and self.usertype=='admin':
-            if len(cmd)!=3 or not cmd[1].isdigit() or not cmd[2].isdigit():
+            if len(cmd)!=3 or not cmd[1].isdigit() or not cmd[2].lstrip('-').isdigit():
                 return 0,'Invalid argument.Usage:pay <port> <months>  Example:pay 11250 12  (Means port 11250 expire date will add 12 months). \n'
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
             if len(userinfo)==0:
