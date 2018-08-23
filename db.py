@@ -213,7 +213,7 @@ class ssdb:
     
     def genbills(self,loginid):
         col = 'port,qq,email,wechat,billdate,startdate,enddate,status';
-        sql = 'select %s,"",0 from users union select %s,delloginid,deldate from delusers' % (col,col)
+        sql = 'select %s,"",0 as deldate from users union select %s,delloginid,deldate from delusers' % (col,col)
         log.msg(sql); 
         rows=self.cur.execute(sql).fetchall()
         cols = col.split(',')
@@ -238,9 +238,12 @@ class ssdb:
 
             billdate = row[ibill];
             enddate = row[iend];
+            deldate = row[ideldate]
             #if billdate no data,equal to startdate
             if billdate == None or billdate == '' or billdate=='None':
                 billdate = row[istart];
+            if deldate>0: #if port is deleted,enddate is which day deleted
+                enddate=deldate;
             if billdate>=enddate: continue;
 
             dend = datetime.strptime(enddate,"%Y%m%d")
