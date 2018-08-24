@@ -320,6 +320,7 @@ class SscmdAvater(object):
             end=datetime.strptime(userinfo['enddate'],'%Y%m%d').date()
             if end<datetime.now().date():
                 end = datetime.now().date();
+                #pay month num will wrong ,if port is expired for months. billdate should be today  
                 userinfo['billdate']=datetime.strftime(end,'%Y%m%d')
             userinfo['status']='pay'
             end=sstime.monthdelta(end,int(cmd[2]));
