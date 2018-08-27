@@ -88,6 +88,36 @@ class ssdb:
             log.err()
             return 0,'register approve failed!'
 
+    # 查找信息，根据userinfo里面的内容，先匹配端口，再模糊匹配每个信息
+    def regfind(self, userinfo={}):
+        log.msg('now find regrecords,param:%s' % str(userinfo));
+        sql = '';
+        if userinfo.get('email') != None:
+            if sql != '': sql += ' and ';
+            sql = 'email=%d' % userinfo.get('email')
+        else:
+            if userinfo.get('qq') != None:
+                if sql != '': sql += ' and ';
+                sql = 'qq like "%' + userinfo.get('qq') + '%"'
+            if userinfo.get('name') != None:
+                if sql != '': sql += ' and ';
+                sql = 'name like "%' + userinfo.get('name') + '%"'
+            if userinfo.get('phone') != None:
+                if sql != '': sql += ' and ';
+                sql += 'phone like "%' + userinfo.get('phone') + '%"'
+            if userinfo.get('status') != None:
+                if sql != '': sql += ' and ';
+                sql += 'status = "' + userinfo.get('status') + '"'
+        cols = 'email,pass,qq,name,status,status,id';
+        sqls = 'select ' + cols + ' from reg';
+        if sql != '':
+            sqls += ' where ' + sql;
+        log.msg(sqls);
+        #rows = self.cur.execute(sqls).fetchall();
+        #log.msg('%d records found!' % len(rows));
+        # load data from db
+        return cols.split(','), self.cur.execute(sqls).fetchall();
+
     def addlog(self,loginid,port,cmd):
         try:
             self.cur.execute('insert into logs(loginid,time,port,cmd,userinfo) values("%s",datetime("now"),%d,"%s","%s")' % (loginid, port, cmd, self.getuserinfo(port)) );
