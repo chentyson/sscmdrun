@@ -8,7 +8,7 @@ from ss import cfgshell
 import db
 from twisted.cred import checkers,credentials,portal
 from zope.interface import Interface
-from SscmdAvater import SscmdAvater,SscmdRealm,ISscmdAvaterInterface,_adminuser,_adminpass
+from SscmdAvater import SscmdAvater,SscmdRealm,ISscmdAvaterInterface,_adminuser,_adminpass,_newreg,_newregpass
 from twisted.internet.threads import deferToThread
 import mailcheck
 import sstime
@@ -99,12 +99,22 @@ class MyFactory(ServerFactory):
         log.msg('reload user infomation...');
         self.checker.users={};
         self.checker.addUser( _adminuser,_adminpass )
+        self.checker.addUser( _newreg,_newregpass )
+        #add port/password
         userinfo={}
         cols,rows=self.dbinfo.find(userinfo);
         for i in range(len(rows)):
             port,passwd=rows[i][:2]
             self.checker.addUser(str(port),passwd)
-        
+        #add reg/password
+        self.regid={}
+        userinfo={'status':'ok'}
+        cols,rows=self.dbinfo.regfind(userinfo);
+        for i in range(len(rows)):
+            email,passwd=rows[i][:2]
+            self.checker.addUser(email,passwd)
+            self.regid[email]=passwd
+
     def getaportal(self):
         log.msg('Get a portal...' )
         aportal=portal.Portal(SscmdRealm())
@@ -120,6 +130,7 @@ class MyFactory(ServerFactory):
         self.cfgfile=cfgshell.cfgfile()
         self.checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
         self._portal = self.getaportal()
+        self.regid={}
         
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
@@ -134,7 +145,7 @@ class MyFactory(ServerFactory):
         #then,mail to testing user expired after 2 days
         mailcheck.mailtest(self)
         #mail to stoped user to buy
-        #mailcheck.mailstoped(self)
+        mailcheck.mailstoped(self)
     
 log.startLogging(sys.stdout)
 #log.startLogging(open(r"./sscmd.log",'a'))

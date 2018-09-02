@@ -5,10 +5,10 @@ from datetime import timedelta
 from twisted.internet.threads import deferToThread
 import sstime
 
-def getrows(dbinfo,expdays,status):
+def getrows(dbinfo,expdays,status,fh='<'):
     userinfo={}
     expdate=sstime.now()+timedelta(days=expdays);
-    userinfo['enddate']='<'+expdate.strftime('%Y%m%d');
+    userinfo['enddate']=fh+expdate.strftime('%Y%m%d');
     userinfo['status']=status;
     return dbinfo.find(userinfo)
     
@@ -51,7 +51,7 @@ def mailwillexp(myfac):
 
 def mailstoped(myfac):
     #mail to stoped users to buy service if they need it
-    cols,rows=getrows(myfac.dbinfo,30,'stop')
+    cols,rows=getrows(myfac.dbinfo,-5,'stop','>')
     if len(rows)>0:
         deferToThread(ssmail.mailstoped,cols,rows)
 
