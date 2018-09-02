@@ -131,5 +131,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.qq.com'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = '1716677@qq.com'
-EMAIL_HOST_PASSWORD = 'tqtpvntsfdxycafd'
+EMAIL_HOST_PASSWORD = 'ucniqyehaxgdbhac'
 DEFAULT_FROM_EMAIL = '1716677@qq.com'

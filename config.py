@@ -1,2 +1,2 @@
 class config:
-    serverip = '19j3.boosoo.cn'
+    serverip = 's13.boosoo.cn'
