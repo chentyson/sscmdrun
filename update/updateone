@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "usage:updateone <serverip>"
+    exit 1
+fi
+
+echo now update $1 ...............
+ssh root@$1 "cd ~/sscmdrun;git pull;systemctl restart supervisord;supervisorctl restart ssrun"
