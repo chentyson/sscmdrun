@@ -53,3 +53,6 @@ def monthdelta(datetime1, n=1):
 
 def now():
     return datetime.now(tz)
+
+def strnow():
+    return datetime.now(tz).strftime('%Y%m%d')

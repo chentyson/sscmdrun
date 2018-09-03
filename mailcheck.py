@@ -29,11 +29,11 @@ def stopexp(myfac):
     for row in rows:
         port=int(row[cols.index('port')])
         ret,msg=stopport(port,myfac.dbinfo,myfac.cfgfile,myfac)
-        port,nouse=myfac.dbinfo.delete(port);
-        if port==0:
-            log.msg('Test port[%s] is expired but can not found in db!' % port)
-        else: 
-            log.msg('sscmd system stop and delete port[%d] auto.port info:%s' % (port,str(row)))
+        #port,nouse=myfac.dbinfo.delete(port);
+        #if port==0:
+        #    log.msg('Test port[%s] is expired but can not found in db!' % port)
+        #else: 
+        log.msg('sscmd system stoped port[%d] auto.port info:%s' % (port,str(row)))
     if len(rows)>0:
         deferToThread(ssmail.mailexp,cols,rows)
 
@@ -51,7 +51,12 @@ def mailwillexp(myfac):
 
 def mailstoped(myfac):
     #mail to stoped users to buy service if they need it
-    cols,rows=getrows(myfac.dbinfo,-5,'stop','>')
+    cols,rows=getrows(myfac.dbinfo,-2,'stop','>')
+    iend = cols.index('enddate')
+    for r in rows:
+        if int(r[iend])>int(sstime.strnow()):
+            #print 'remove row:',r
+            rows.remove(r)
     if len(rows)>0:
         deferToThread(ssmail.mailstoped,cols,rows)
 
