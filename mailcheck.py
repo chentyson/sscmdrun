@@ -53,12 +53,12 @@ def mailstoped(myfac):
     #mail to stoped users to buy service if they need it
     cols,rows=getrows(myfac.dbinfo,-2,'stop','>')
     iend = cols.index('enddate')
+    rr=[]
     for r in rows:
-        if int(r[iend])>int(sstime.strnow()):
-            #print 'remove row:',r
-            rows.remove(r)
-    if len(rows)>0:
-        deferToThread(ssmail.mailstoped,cols,rows)
+        if int(r[iend])<=int(sstime.strnow()):
+            rr.append(r)
+    if len(rr)>0:
+        deferToThread(ssmail.mailstoped,cols,rr)
 
 #def mailcclpx(myfac):
     #run cclpx, get all ports that connect number is over 2,then mail to user warning,
