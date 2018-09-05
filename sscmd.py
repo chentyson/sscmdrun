@@ -7,12 +7,36 @@ from twisted.internet import reactor,task
 from ss import cfgshell
 import db
 from twisted.cred import checkers,credentials,portal
-from zope.interface import Interface
-from SscmdAvater import SscmdAvater,SscmdRealm,ISscmdAvaterInterface,_adminuser,_adminpass,_newreg,_newregpass
+from zope.interface import Interface,implements
+from SscmdAvater import SscmdAvater,ISscmdAvaterInterface
 from twisted.internet.threads import deferToThread
 import mailcheck
 import sstime
 from datetime import datetime
+
+#define admin user and pass
+_admin='tyson'
+_newreg='newreg'
+_adminpass='IamadminTyson'
+_newregpass='newregPass'
+
+_usertype={}
+_usertype[_admin]='admin'
+_usertype[_newreg]='reg'
+
+class SscmdRealm(object):
+    implements(portal.IRealm)
+
+    def requestAvatar(self,avaterId, mind, *interfaces):
+        if ISscmdAvaterInterface in interfaces:
+            log.msg('requestAvater: %s' % avaterId);
+            avater=SscmdAvater()
+            avater.avaterId=avaterId
+            avater.usertype=_usertype[avaterId]
+            return ISscmdAvaterInterface,avater,avater.logout
+
+        raise NotImplementedError('''''This Realm only support IEchoAvatarInterface''')
+
 
 class CmdProtocol(LineReceiver):
 
@@ -98,7 +122,7 @@ class MyFactory(ServerFactory):
     def reloadUser(self):
         log.msg('reload user infomation...');
         self.checker.users={};
-        self.checker.addUser( _adminuser,_adminpass )
+        self.checker.addUser( _admin,_adminpass )
         self.checker.addUser( _newreg,_newregpass )
         #add port/password
         userinfo={}
@@ -106,6 +130,8 @@ class MyFactory(ServerFactory):
         for i in range(len(rows)):
             port,passwd=rows[i][:2]
             self.checker.addUser(str(port),passwd)
+            _usertype[str(port)]='user'
+
         #add reg/password
         self.regid={}
         userinfo={'status':'ok'}
@@ -114,6 +140,7 @@ class MyFactory(ServerFactory):
             email,passwd=rows[i][:2]
             self.checker.addUser(email,passwd)
             self.regid[email]=passwd
+            _usertype[email]='login'
 
     def getaportal(self):
         log.msg('Get a portal...' )
@@ -135,7 +162,7 @@ class MyFactory(ServerFactory):
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
 	    
-        if sstime.now().strftime('%H')!='22': return  #at 10 o'clock evary day 
+        if sstime.now().strftime('%H')!='14': return  #at 10 o'clock evary day 
 
         log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
         #first, stop all expired port,and mail to user
