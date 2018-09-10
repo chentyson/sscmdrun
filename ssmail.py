@@ -37,6 +37,7 @@ def mail(subject,text_content,html_content,my_user):
         server.login(my_sender, my_pass)  # 括号中对应的是发件人邮箱账号、邮箱密码
         server.sendmail(my_sender,[my_user,'info@boosoo.cn'],msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
         server.quit()  # 关闭连接
+        log.msg('mailed to %s, subject:%s' % (my_user,subject))
     except Exception as e:  # 如果 try 中的语句没有执行，则会执行下面的 ret=False
         ret=False
         log.err('mail exception:%s' % e.message)

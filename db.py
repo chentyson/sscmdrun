@@ -20,20 +20,25 @@ class ssdb:
         log.msg('begin init ssdb...');
         self.conn = sqlite3.connect('/etc/shadowsocks/sscmd.db');
         self.cur = self.conn.cursor();
+        #user and deluser
         self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
         try:
             self.cur.execute('alter table users add column billdate TEXT'); 
-        except: pass;
-        try:
             self.cur.execute('alter table users add column loginid TEXT'); 
-        except: pass;
-        try:
             self.cur.execute('alter table users add column deldate TEXT'); 
         except: pass;
-
-        self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
         self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
+        #logs
+        self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
+        #reg login id
         self.cur.execute('create table if not exists reg(id integer PRIMARY KEY autoincrement,email TEXT unique,pass TEXT,name TEXT,qq TEXT,phone TEXT,vcode TEXT,vcodetime datetime,status TEXT)')
+        try:
+            self.cur.execute('alter table reg add column feerateid integer');   
+        except: pass;
+        #price and feerate
+        self.cur.execute('create table if not exists price(id integer PRIMARY KEY,name TEXT,ips integer,devs integer,year integer,halfyear integer,quarter integer,month integer)')
+        self.cur.execute('create table if not exists feerate(id integer PRIMARY KEY,priceid integer,rateyear float,ratehalfy float,ratequarter float,ratemonth float)')
+        
         self.conn.commit();
         log.msg('end init ssdb.');
 
@@ -43,11 +48,15 @@ class ssdb:
     def genvcode(self,email):
        code=self.GenPassword(6,string.digits)
        try:
+           count = self.cur.execute('select count(*) from reg where email="%s" and status="ok"' % email).fetchall()[0][0];
+           if count>0:
+
+               return 'fail,您注册的邮箱已经是用户，可直接登录！'
            self.cur.execute('replace into reg(email,vcode,vcodetime) values("%s","%s",datetime("now","30 minutes"))' % (email,code));
            self.conn.commit();
            if not ssmail.mail('震撼网络服务注册验证码','你本次注册验证码是:%s\n注意：验证码在你点获取验证码时起30分钟内有效。' % code,'',email):
-               return ''
-           else: return code
+               return 'fail,验证发送异常，请检查注册的邮箱地址是否正确。有疑问可联系 1716677@qq.com 咨询。'
+           else: return 'ok'
        except Exception as e:
            log.err('gen and mail verification code error:%s' % e.message)
            log.err()
@@ -187,7 +196,7 @@ class ssdb:
                 sql += 'ips' + userinfo.get('ips')  # 参数中已经带了比较符号
             if userinfo.get('status') != None:
                 if sql != '': sql += ' and ';
-                sql += 'status like "%' + userinfo.get('status') + '%"'
+                sql += '(' + ' or '.join('status like "%' + a + '%"' for a in userinfo.get('status').split('|')) + ')'
             if userinfo.get('devs') != None:
                 if sql != '': sql += ' and ';
                 sql += 'devs' + userinfo.get('devs')
@@ -242,25 +251,39 @@ class ssdb:
         return 0;
     
     def genbills(self,loginid):
-        col = 'port,qq,email,wechat,billdate,startdate,enddate,status';
-        sql = 'select %s,"",0 as deldate from users union select %s,delloginid,deldate from delusers' % (col,col)
+        col = 'a.port,a.qq,a.email,a.wechat,a.billdate,a.startdate,a.enddate,a.loginid,b.name,b.feerateid,c.year,c.halfyear,c.quarter,c.month,d.rateyear,d.ratehalfy,d.ratequarter,d.ratemonth,a.status';
+        if loginid=='':
+            sql = 'select %s,"",0 as deldate from users a left join reg b on a.loginid=b.email left join price c on a.ips=c.ips and a.devs=c.devs left join feerate d on b.feerateid=d.id and c.id=d.priceid union select %s,delloginid,deldate from delusers a left join reg b on a.loginid=b.email left join price c on a.ips=c.ips and a.devs=c.devs left join feerate d on b.feerateid=d.id and c.id=d.priceid' % (col,col)
+        else:
+            sql = 'select %s,"",0 as deldate from users a left join reg b on a.loginid=b.email left join price c on a.ips=c.ips and a.devs=c.devs left join feerate d on b.feerateid=d.id and c.id=d.priceid where a.loginid="%s" union select %s,delloginid,deldate from delusers a left join reg b on a.loginid=b.email left join price c on a.ips=c.ips and a.devs=c.devs left join feerate d on b.feerateid=d.id and c.id=d.priceid where a.loginid="%s"' % (col,loginid,col,loginid)
         log.msg(sql); 
         rows=self.cur.execute(sql).fetchall()
         cols = col.split(',')
         
-        iport = cols.index('port');
-        iqq = cols.index('qq');
-        iemail = cols.index('email');
-        iwechat = cols.index('wechat');
-        ibill = cols.index('billdate');
-        istart = cols.index('startdate');
-        iend = cols.index('enddate');
-        ista = cols.index('status');
+        iport = cols.index('a.port');
+        iqq = cols.index('a.qq');
+        iemail = cols.index('a.email');
+        iwechat = cols.index('a.wechat');
+        ibill = cols.index('a.billdate');
+        istart = cols.index('a.startdate');
+        iend = cols.index('a.enddate');
+        iname = cols.index('b.name');
+        irateid = cols.index('b.feerateid')
+        ifeey = cols.index('c.year');
+        iratey = cols.index('d.rateyear');
+        ifeeh = cols.index('c.halfyear');
+        irateh = cols.index('d.ratehalfy');
+        ifeeq = cols.index('c.quarter');
+        irateq = cols.index('d.ratequarter')
+        ifeem = cols.index('c.month')
+        iratem = cols.index('d.ratemonth')
+        ista = cols.index('a.status');
         ideldate = ista + 2;
 
         bills = [];
         bill = {};
         totalmonth = 0;
+        totalfee = 0.0;
         if len(rows)== 0: return bills;
         for row in rows:
             status = row[ista];
@@ -279,6 +302,14 @@ class ssdb:
             dend = datetime.strptime(enddate,"%Y%m%d")
             dbill = datetime.strptime(billdate,"%Y%m%d")
             months = ((dend-dbill).days + 10)/30; 
+            if row[ifeey]==None or row[iratey]==None: feey=0
+            else:feey = row[ifeey] * row[iratey]
+            if row[ifeeh]==None or row[irateh]==None: feeh=0
+            else:feeh = row[ifeeh] * row[irateh]
+            if row[ifeeq]==None or row[irateq]==None: feeq=0
+            else:feeq = row[ifeeq] * row[irateq]
+            if row[ifeem]==None or row[iratem]==None: feem=0
+            else:feem = row[ifeem] * row[iratem]
             
             if months > 0:
                 bill['port']=row[iport];
@@ -290,9 +321,18 @@ class ssdb:
                 bill['email']=row[iemail];
                 bill['wechat']=row[iwechat];
                 bill['deldate']=row[ideldate];
+                bill['name']=row[iname];
+                if feey==0 or feeh==0 or feeq==0 or feem==0:
+                    #bills.append({'port':'#','paymonth':'Error rate setting'})
+                    log.msg('port:%s feey:%s feeh:%s feeq:%s feem:%s sql:%s' % (row[iport],feey,feeh,feeq,feem,sql))
+                    bill['fee']='ERROR'
+                    totalfee = -1;
+                else:
+                    bill['fee']=(months/12)*feey + (months%12/6)*feeh + (months%12%6/3)*feeq + (months%12%6%3)*feem
+                    if totalfee>=0: totalfee += bill['fee'];
                 bills.append(bill.copy());
                 totalmonth += months;
-        bills.append({'port':'#','paymonth':totalmonth});
+        bills.append({'port':'#','paymonth':totalmonth,'fee':totalfee});
         return bills;
 
     def login(self,email,passwd):

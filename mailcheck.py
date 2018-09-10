@@ -51,7 +51,7 @@ def mailwillexp(myfac):
 
 def mailstoped(myfac):
     #mail to stoped users to buy service if they need it
-    cols,rows=getrows(myfac.dbinfo,-2,'stop','>')
+    cols,rows=getrows(myfac.dbinfo,-2,'stop','>=')
     iend = cols.index('enddate')
     rr=[]
     for r in rows:

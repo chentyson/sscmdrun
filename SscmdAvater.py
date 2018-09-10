@@ -11,11 +11,15 @@ import signal
 from config import config
 import telnetlib
 
-#define admin user and pass
-_adminuser='tyson'
-_adminpass='IamadminTyson'
-_newreg='newreg'
-_newregpass='newregPass'
+class ISscmdAvaterInterface(Interface):
+    def logout(self):
+        '''''
+        Interface to credentials
+        '''
+    def processCmd(self,line):
+        '''''
+        deal with command line
+        '''
 
 def get_pid(name):
     status,output = commands.getstatusoutput("pidof %s" % name)
@@ -25,33 +29,6 @@ def get_pid(name):
         return [];
     else:
         return map(int,output.split())
-
-class SscmdRealm(object):
-    implements(portal.IRealm)
-
-    def requestAvatar(self,avaterId, mind, *interfaces):
-        if ISscmdAvaterInterface in interfaces:
-            log.msg('requestAvater: %s' % avaterId);
-            avater=SscmdAvater()
-            avater.avaterId=avaterId
-            if avaterId==_adminuser: 
-                avater.usertype='admin'
-            elif avaterId==_newreg:  #just for register
-                avater.usertype='reg'
-            else: avater.usertype='user'
-            return ISscmdAvaterInterface,avater,avater.logout
-
-        raise NotImplementedError('''''This Realm only support IEchoAvatarInterface''')
-
-class ISscmdAvaterInterface(Interface):
-    def logout(self):
-        ''''' 
-        Interface to credentials 
-        '''
-    def processCmd(self,line):
-        '''''
-        deal with command line 
-        '''
 
 def param2dict(cmd, paramfrom, adict):
     for i in range(paramfrom,len(cmd)):   #command example: add pass:12345 qq:1716677 startdate:20180101 ,  so loop for every argument
@@ -160,11 +137,9 @@ class SscmdAvater(object):
  
         #find <port>/all
         #find <col-name>:<col-value> .... 
-        if cmd[0]=='find':
+        if cmd[0]=='find' and self.usertype in ['admin','login']:
             if len(cmd)==1: 
                 return 0,'Missing arguments!\n'
-            if self.usertype=='user' and self.avaterId!='11000':
-                return 0, '只有线路管理员才能使用该功能.\n'
 
             args=cmd[1].split(':')
             userinfo={};info=None
@@ -205,10 +180,10 @@ class SscmdAvater(object):
                 msg='查无满足条件账户记录!';
             return 0,msg
             
-        if cmd[0]=='cfgcount' and self.usertype=='admin':
+        if cmd[0]=='cfgcount' and self.usertype in ['admin']:
             return 0,'%d\n' % cfgfile.count_port('')
         
-        if cmd[0]=='add' and self.usertype=='admin':
+        if cmd[0]=='add' and self.usertype in ['admin','login']:
             #get parameters, init userinfo
             userinfo={}
             userinfo['pass']=dbinfo.GenPassword();  #默认产生随机密码
@@ -252,7 +227,7 @@ class SscmdAvater(object):
             else: atype='个人版'
             return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'])
   
-        if cmd[0]=='update' and self.usertype=='admin':
+        if cmd[0]=='update' and self.usertype in ['admin','login']:
             if len(cmd)<3 or not cmd[1].isdigit():
                 return 0, 'Invalid argument. example: update 11250 qq:1716677 email:1716677@qq.com \n'
             userinfo=dbinfo.getuserinfo(int(cmd[1]))
@@ -267,7 +242,7 @@ class SscmdAvater(object):
             dbinfo.addlog(self.avaterId,port,line);
             return 0,'port[%d] is updated. New user information[%s]. \n' % (port,str(userinfo))
   
-        if cmd[0]=='passwd':
+        if cmd[0]=='passwd' and self.usertype in ['admin','login','user']:
             if len(cmd)<3 or not cmd[1].isdigit():
                 return 0,'Invalid argument. usage: passwd <port> <new password>.  example: passwd 11250 aaaa \n'
             if self.usertype=='user' and cmd[1]!=self.avaterId and self.avaterId!='11000':
@@ -291,7 +266,7 @@ class SscmdAvater(object):
             dbinfo.addlog(self.avaterId,port,line);
             return 0,'port[%d] password is changed! Active. \n' % (port)
   
-        if cmd[0]=='expdate':
+        if cmd[0]=='expdate' and self.usertype in ['admin','login','user']:
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 1,'Invalid argument format'
             port=int(cmd[1])
@@ -306,7 +281,7 @@ class SscmdAvater(object):
                 return 0, str('ok,%s' % userinfo['enddate'])
         
         #pay a port. update db status to 'pay', check config file and create if not exists
-        if cmd[0]=='pay' and self.usertype=='admin':
+        if cmd[0]=='pay' and self.usertype in ['admin','login']:
             if len(cmd)!=3 or not cmd[1].isdigit() or not cmd[2].lstrip('-').isdigit():
                 return 0,'Invalid argument.Usage:pay <port> <months>  Example:pay 11250 12  (Means port 11250 expire date will add 12 months). \n'
             userinfo=dbinfo.getuserinfo(int(cmd[1]));
@@ -341,7 +316,7 @@ class SscmdAvater(object):
             return 0,'Ok. the port[%s] is payed for [%s] months. New end date[%s]\n' % (cmd[1],cmd[2],userinfo['enddate'])
   
         #set status 'stop' in db, and delete port from config file 
-        if cmd[0]=='stop' and self.usertype=='admin':
+        if cmd[0]=='stop' and self.usertype in ['admin','login']:
             ret,msg=self.chkarg(cmd,2)
             if not ret: return 0,msg
             if not cmd[1].isdigit():
@@ -352,7 +327,7 @@ class SscmdAvater(object):
             return ret,msg 
     
         #del userinfo from db and config file
-        if cmd[0]=='del' and self.usertype=='admin':
+        if cmd[0]=='del' and self.usertype in ['admin','login']:
             ret,msg=self.chkarg(cmd,2)
             if not ret: return 0,msg
             if not cmd[1].isdigit(): 
@@ -376,7 +351,7 @@ class SscmdAvater(object):
             dbinfo.addlog(self.avaterId,port,line);
             return 0,'OK,port[%d] is deleted. Userinfo is %s.\n' % (port,str(rows))
   
-        if cmd[0]=='cfgreset':  #reset config file, depend on sscmd.db
+        if cmd[0]=='cfgreset' and self.usertype in ['admin']:  #reset config file, depend on sscmd.db
             cfgfile.save_config();  #backup
             cfgfile.clear_port();
             userinfo={};
@@ -419,18 +394,24 @@ class SscmdAvater(object):
             else:
                 return 0,output
 
-        if cmd[0]=='bills' and self.usertype=='admin':  #gen bills of ports which not payed
-            if len(cmd)>1:
-                return 0,'Invalid argument. \n'
-            return 0, json.dumps(dbinfo.genbills(self.avaterId));            
+        if cmd[0]=='bills' and self.usertype in ['admin','login']:  #gen bills of ports which not payed
+            if len(cmd)>=2 and self.usertype == 'login' and cmd[1] != self.avaterId:
+                return 0,'Fail,Pemission denied!'
+            if len(cmd)<2:
+                if self.usertype == 'admin': loginid = ''
+                else: loginid = self.avaterId
+            else: loginid = cmd[1]
+            return 0, json.dumps(dbinfo.genbills(loginid));            
 
-        if cmd[0]=='expired' and self.usertype=='admin':  #return all ports which expired after n days
+        if cmd[0]=='expired' and self.usertype in ['admin','login']:  #return all ports which expired after n days
             if len(cmd)<2 or not cmd[1].isdigit():
                 return 0,'Invalid command. usage: expired <days num>. example:expired 10.\n'
             userinfo={}
             expdate=sstime.now()+timedelta(days=int(cmd[1]));
             userinfo['enddate']='<'+expdate.strftime('%Y%m%d');
-            userinfo['status']='pay';
+            userinfo['status']='pay|test';
+            if self.usertype != 'admin':
+                userinfo['loginid']=self.avaterId
             cols,rows = dbinfo.find(userinfo);
             rets=[]
             ret={}
@@ -450,7 +431,7 @@ class SscmdAvater(object):
                 rets.append(ret.copy())
             return 0,json.dumps(rets); 
 
-        if cmd[0]=='testport':  #test a remote port
+        if cmd[0]=='testport' and self.usertype in ['admin']:  #test a remote port
             if len(cmd)<3 or not cmd[1].isdigit():
                 return 0,'Invalid command. usage: testport <host> <port>.\n'
             try:
@@ -460,16 +441,13 @@ class SscmdAvater(object):
             except:
                 return 0,'fail'
 
-        if cmd[0]=='genvcode' and self.usertype=='reg':  #generate a verification code and save and mail it, ex: genvcode 1716677@qq.com 
+        if cmd[0]=='genvcode' and self.usertype in ['reg']:  #generate a verification code and save and mail it, ex: genvcode 1716677@qq.com 
             if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
                 return 0,'Invalid command.usage: genvcode <email address>.\n'
             email=cmd[1]
-            vcode=dbinfo.genvcode(email)
-            if vcode=='':
-                return 0,'Can not a verification code,check you email is correct~'
-            return 0,'ok'
+            return 0,dbinfo.genvcode(email)
 
-        if cmd[0]=='reg' and self.usertype=='reg':
+        if cmd[0]=='reg' and self.usertype in ['reg']:
             if len(cmd)<2:
                 return 0,'Invalid command.usage:reg <register info json>.\n'
             try:
@@ -481,10 +459,10 @@ class SscmdAvater(object):
             ret,msg = dbinfo.reg(logininfo);
             return 0,msg
 
-        if cmd[0]=='approve' and self.usertype=='admin':
+        if cmd[0]=='approve' and self.usertype in ['admin']:
             if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
                 return 0,'Invalid command. usage:approve <email>.\n'
             return dbinfo.regapprove(cmd[1])
 
-        return 0,'Fail,Unknown command.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
+        return 0,'Fail,Unknown command or permission denied.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 

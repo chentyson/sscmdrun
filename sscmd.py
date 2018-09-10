@@ -17,11 +17,9 @@ from datetime import datetime
 #define admin user and pass
 _admin='tyson'
 _newreg='newreg'
-_adminpass='IamadminTyson'
 _newregpass='newregPass'
 
 _usertype={}
-_usertype[_admin]='admin'
 _usertype[_newreg]='reg'
 
 class SscmdRealm(object):
@@ -122,7 +120,6 @@ class MyFactory(ServerFactory):
     def reloadUser(self):
         log.msg('reload user infomation...');
         self.checker.users={};
-        self.checker.addUser( _admin,_adminpass )
         self.checker.addUser( _newreg,_newregpass )
         #add port/password
         userinfo={}
@@ -140,7 +137,10 @@ class MyFactory(ServerFactory):
             email,passwd=rows[i][:2]
             self.checker.addUser(email,passwd)
             self.regid[email]=passwd
-            _usertype[email]='login'
+            if email==_admin:
+                _usertype[email]='admin'
+            else:
+                _usertype[email]='login'
 
     def getaportal(self):
         log.msg('Get a portal...' )
@@ -162,7 +162,7 @@ class MyFactory(ServerFactory):
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
 	    
-        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day 
+        if sstime.now().strftime('%H')!='17': return  #at 10 o'clock evary day 
 
         log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
         #first, stop all expired port,and mail to user
