@@ -162,7 +162,7 @@ class MyFactory(ServerFactory):
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
 	    
-        if sstime.now().strftime('%H')!='17': return  #at 10 o'clock evary day 
+        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day 
 
         log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
         #first, stop all expired port,and mail to user
@@ -176,7 +176,7 @@ class MyFactory(ServerFactory):
     
 log.startLogging(sys.stdout)
 #log.startLogging(open(r"./sscmd.log",'a'))
-myfac=MyFactory(2)
+myfac=MyFactory(20)
 reactor.listenTCP(39125, myfac)
 t=task.LoopingCall(myfac.accountcheck)
 #check every 1h

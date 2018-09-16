@@ -85,10 +85,10 @@ class ssdb:
             log.err()
             return -3,'register failed! got an exception!'
 
-    def regapprove(self,email):
+    def regapprove(self,email,feerateid):
         try:
-            log.msg('register approving %s...' % email)
-            ret = self.cur.execute('update reg set status="ok" where email="%s"' % email)
+            log.msg('register approving %s, use feerateid is %d...' % (email,feerateid))
+            ret = self.cur.execute('update reg set status="ok",feerateid=%d where email="%s"' % (feerateid,email))
             self.conn.commit();
             #log.msg('update result:%s' % ret.fetchall())
             return 0,'ok'
@@ -103,7 +103,7 @@ class ssdb:
         sql = '';
         if userinfo.get('email') != None:
             if sql != '': sql += ' and ';
-            sql = 'email=%d' % userinfo.get('email')
+            sql = 'email="%s"' % userinfo.get('email')
         else:
             if userinfo.get('qq') != None:
                 if sql != '': sql += ' and ';

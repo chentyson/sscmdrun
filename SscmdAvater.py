@@ -89,7 +89,7 @@ class SscmdAvater(object):
   
         if cmd[0]=='exit': return -1,None
        
-        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:'+config.serverip+'\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
+        portinfo='欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:'+config.serverip+'\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
   
         if cmd[0]=='cfglist' and self.usertype=='admin':
             portlist=cfgfile.portpass();
@@ -131,7 +131,7 @@ class SscmdAvater(object):
             (port,password)=cfgfile.find_port(cmd[1])
             print port,password
             if port!='0':
-                return 0, portinfo % (int(port),password,'','','')
+                return 0, portinfo % (int(port),password,'','','','正常')
             else:
                 return 0, 'Port or password can not find [%s]!\n' % cmd[1]
  
@@ -175,7 +175,9 @@ class SscmdAvater(object):
                     atype='######';
                     ips='######';
                     msg='';  #如果是普通用户,则省略详细信息
-                msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),atype,devs,str(rows[0][cols.index('enddate')]))
+                if stat=='stop': astat='停用'
+                else:astat='正常'
+                msg += '\n'+info % (int(cmd[1]),str(rows[0][cols.index('pass')]),atype,devs,str(rows[0][cols.index('enddate')]),astat)
             if len(rows)<1:
                 msg='查无满足条件账户记录!';
             return 0,msg
@@ -225,7 +227,9 @@ class SscmdAvater(object):
             elif int(ips)>2 and int(devs)>2:
                 atype='多设备独立IP'
             else: atype='个人版'
-            return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'])
+            if userinfo['status']=='stop':astat='停用'
+            else:astat='正常'
+            return 0, portinfo % (port,userinfo['pass'],atype,ips,userinfo['enddate'],astat)
   
         if cmd[0]=='update' and self.usertype in ['admin','login']:
             if len(cmd)<3 or not cmd[1].isdigit():
@@ -460,9 +464,40 @@ class SscmdAvater(object):
             return 0,msg
 
         if cmd[0]=='approve' and self.usertype in ['admin']:
-            if len(cmd)<2 or not '@' in cmd[1] or not '.' in cmd[1]:
-                return 0,'Invalid command. usage:approve <email>.\n'
-            return dbinfo.regapprove(cmd[1])
+            if len(cmd)<3 or not '@' in cmd[1] or not '.' in cmd[1] or not cmd[2].isdigit():
+                return 0,'Invalid command. usage:approve <email> <feetype>.\n'
+            ret1,ret2 = dbinfo.regapprove(cmd[1],int(cmd[2]))
+            if ret2=='ok':
+                factory.reloadUser();  #重新加载用户资料
+            return ret1,ret2
+
+        #regfind <col-name>:<col-value> .... 
+        if cmd[0]=='regfind' and self.usertype in ['admin']:
+            args=[]
+            if len(cmd)>1:
+                args=cmd[1].split(':')
+            userinfo={};
+            if len(args)==1:
+                if cmd[1].isdigit():
+                    userinfo['id']=int(cmd[1]);
+                else: userinfo['email']=cmd[1] 
+            else:
+                for i in range(len(cmd)):
+                    if i==0: continue;
+                    args=cmd[i].split(':');
+                    if len(args)<=1: continue;
+                    userinfo[args[0]]=args[1];
+            cols,rows=dbinfo.regfind(userinfo);
+            #如果记录数较多采用记录集返回
+            msgs=[]
+            col={}
+            colnum=len(cols)
+            for row in rows:
+                for i in range(colnum):
+                    col[cols[i]]=row[i]
+                msgs.append(col.copy())
+            return 0,json.dumps(msgs)
+
 
         return 0,'Fail,Unknown command or permission denied.\n'  #Command should be "add","stop","del","list","find","exit","count","commit"\n');
 
