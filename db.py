@@ -17,24 +17,26 @@ from random import choice
 class ssdb:
 
     def __init__(self):
-        log.msg('begin init ssdb...');
-        self.conn = sqlite3.connect('/etc/shadowsocks/sscmd.db');
+        log.msg('begin init ssdb...')
+        self.conn = sqlite3.connect('/etc/shadowsocks/sscmd.db')
         self.cur = self.conn.cursor();
         #user and deluser
-        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))');
+        self.cur.execute('create table if not exists users(port integer primary key not null,pass varchar(20), qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT,ips integer,devs integer,status varchar(10))')
         try:
-            self.cur.execute('alter table users add column billdate TEXT'); 
-            self.cur.execute('alter table users add column loginid TEXT'); 
-            self.cur.execute('alter table users add column deldate TEXT'); 
+            self.cur.execute('alter table users add column billdate TEXT') 
+            self.cur.execute('alter table users add column loginid TEXT') 
+            self.cur.execute('alter table users add column deldate TEXT')
         except: pass;
-        self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)');
+        self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)')
         #logs
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
         #reg login id
         self.cur.execute('create table if not exists reg(id integer PRIMARY KEY autoincrement,email TEXT unique,pass TEXT,name TEXT,qq TEXT,phone TEXT,vcode TEXT,vcodetime datetime,status TEXT)')
+        self.cur.execuete('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
         try:
-            self.cur.execute('alter table reg add column feerateid integer');   
+            self.cur.execute('alter table reg add column feerateid integer')
         except: pass;
+        self.cur.execuete('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
         #price and feerate
         self.cur.execute('create table if not exists price(id integer PRIMARY KEY,name TEXT,ips integer,devs integer,year integer,halfyear integer,quarter integer,month integer)')
         self.cur.execute('create table if not exists feerate(id integer PRIMARY KEY,priceid integer,rateyear float,ratehalfy float,ratequarter float,ratemonth float)')
