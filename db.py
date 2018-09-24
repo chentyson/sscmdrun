@@ -46,21 +46,27 @@ class ssdb:
         return ''.join([choice(chars) for i in range(length)])
 
     def genvcode(self,email):
-       code=self.GenPassword(6,string.digits)
-       try:
-           count = self.cur.execute('select count(*) from reg where email="%s" and status="ok"' % email).fetchall()[0][0];
-           if count>0:
-
-               return 'fail,您注册的邮箱已经是用户，可直接登录！'
-           self.cur.execute('replace into reg(email,vcode,vcodetime) values("%s","%s",datetime("now","30 minutes"))' % (email,code));
-           self.conn.commit();
-           if not ssmail.mail('震撼网络服务注册验证码','你本次注册验证码是:%s\n注意：验证码在你点获取验证码时起30分钟内有效。' % code,'',email):
-               return 'fail,验证发送异常，请检查注册的邮箱地址是否正确。有疑问可联系 1716677@qq.com 咨询。'
-           else: return 'ok'
-       except Exception as e:
-           log.err('gen and mail verification code error:%s' % e.message)
-           log.err()
-           return ''
+        code=self.GenPassword(6,string.digits)
+        try:
+            rows = self.cur.execute('select status from reg where email="%s"' % email).fetchall();
+            if len(rows) > 0:
+                if rows[0][0] == 'pending':
+                    return 'already', '该邮箱已经注册!\n\n请用您注册时登记的QQ号码联系 QQ：1716677，以便更快能审核通过！'
+                elif rows[0][0] == 'ok':
+                    return 'already', '您注册的邮箱已经是用户，可直接登录！'
+                else:
+                    self.cur.execute('update reg set vcode="%s",vcodetime=datetime("now","30 minutes") where email="%s"' % (code, email))
+            else:
+                self.cur.execute('insert into reg(email,vcode,vcodetime) values("%s","%s",datetime("now","30 minutes"))' % (email,code));
+            self.conn.commit();
+            if not ssmail.mail('震撼网络服务注册验证码', '你本次注册验证码是:%s\n注意：验证码在你点获取验证码时起30分钟内有效。' % code,'',email):
+                return 'mailerr', '验证发送异常，请检查注册的邮箱地址是否正确。有疑问可联系 1716677@qq.com 咨询。'
+            else:
+                return 'ok', 'ok'
+        except Exception as e:
+            log.err('gen and mail verification code error:%s' % e.message)
+            log.err()
+            return ''
 
     def reg(self,logininfo={}):
         try:
@@ -71,31 +77,39 @@ class ssdb:
             name = logininfo.get('name')
             phone = logininfo.get('phone')
             vcode = logininfo.get('vcode')
-            if email==None or passwd==None:
-                return -1,'invalid register information!'
+            if not email or not passwd or not vcode or not qq:
+                return 'infomiss','无效的注册信息，注册时必填的项目不能少！'
             rows = self.cur.execute('select vcode,vcodetime from reg where email="%s"' % email).fetchall()
-            if len(rows)<1 or vcode!=rows[0][0]:
-                return -2,'need the right email and verification code!'
+            if len(rows) < 1 or vcode != rows[0][0]:
+                return 'nomatch', '您的验证码和注册邮箱不匹配，请您当时获取验证码的邮箱内查找并取得正确的验证码后填入再试试！'
             #now register
-            self.cur.execute('replace into reg(email,pass,name,qq,phone,status) values("%s","%s","%s","%s","%s","pending")' % (email,passwd,name,qq,phone))
+            self.cur.execute('update reg set pass="%s",name="%s",qq="%s",phone="%s",status="pending" where email="%s"' % (passwd,name,qq,phone,email))
             self.conn.commit();
-            return 0,'ok'
+            return 'ok','ok'
         except Exception as e:
             log.err('register fail! error:%s' % e.message)
             log.err()
-            return -3,'register failed! got an exception!'
+            return 'err','register failed! got an exception!'
 
     def regapprove(self,email,feerateid):
         try:
             log.msg('register approving %s, use feerateid is %d...' % (email,feerateid))
+            rows = self.cur.execute('select id from feerate where id=%s' % feerateid).fetchall()
+            if len(rows)==0:
+                return 'nofind', '审核用户通过的费用方案 %s 不存在！' % feerateid
+            rows = self.cur.execute('select status from reg where email="%s"' % email).fetchall()
+            if len(rows) == 0:
+                return 'nofind', '无法找到审核的 email: %s ' % email
+            if not rows[0][0] == 'pending':
+                return 'errstat', '该用户状态无需审核！'
             ret = self.cur.execute('update reg set status="ok",feerateid=%d where email="%s"' % (feerateid,email))
             self.conn.commit();
             #log.msg('update result:%s' % ret.fetchall())
-            return 0,'ok'
+            return 'ok', 'ok'
         except Exception as e:
             log.err('register approve failed! error:%s' % e.message)
             log.err()
-            return 0,'register approve failed!'
+            return 'fail', '注册审批失败，有异常产生！'
 
     # 查找信息，根据userinfo里面的内容，先匹配端口，再模糊匹配每个信息
     def regfind(self, userinfo={}):
@@ -117,7 +131,7 @@ class ssdb:
             if userinfo.get('status') != None:
                 if sql != '': sql += ' and ';
                 sql += 'status = "' + userinfo.get('status') + '"'
-        cols = 'email,pass,qq,name,status,status,id';
+        cols = 'email,pass,qq,name,status,id,phone,feerateid';
         sqls = 'select ' + cols + ' from reg';
         if sql != '':
             sqls += ' where ' + sql;

@@ -13,6 +13,7 @@ from twisted.internet.threads import deferToThread
 import mailcheck
 import sstime
 from datetime import datetime
+import base64
 
 #define admin user and pass
 _admin='tyson'
@@ -38,81 +39,89 @@ class SscmdRealm(object):
 
 class CmdProtocol(LineReceiver):
 
-  delimiter = '\n'
-  def __init__(self):
-      log.msg('init cmdProtocol...')
-      self._avater=None
- 
-  def connectionMade(self):
-    self.client_ip = self.transport.getPeer()
-    log.msg("Client connection from %s" % self.client_ip)
-    if len(self.factory.clients) >= self.factory.clients_max:
-        #kick connection timeout
-        for time,trans in self.factory.clients.values():
-           if (datetime.now()-time).seconds > 30:
-               trans.loseConnection()
-               self.factory.clients[self.client_ip]=(datetime.now(),self.transport)
-               return
-        if len(self.factory.clients)>=self.factory.clients_max:
-            log.msg("Too many connections. bye !")
-            self.client_ip = None
+    delimiter = '\n'
+
+    def __init__(self):
+        log.msg('init cmdProtocol...')
+        self._avater = None
+
+    def connectionMade(self):
+        self.client_ip = self.transport.getPeer()
+        log.msg("Client connection from %s" % self.client_ip)
+        if len(self.factory.clients) >= self.factory.clients_max:
+            #kick connection timeout
+            for time,trans in self.factory.clients.values():
+               if (datetime.now()-time).seconds > 30:
+                   trans.loseConnection()
+                   self.factory.clients[self.client_ip]=(datetime.now(),self.transport)
+                   return
+            if len(self.factory.clients)>=self.factory.clients_max:
+                log.msg("Too many connections. bye !")
+                self.client_ip = None
+                self.transport.loseConnection()
+                return
+        self.factory.clients[self.client_ip]=(datetime.now(),self.transport)
+
+    def connectionLost(self, reason):
+        log.msg('Lost client connection. Reason: %s' % reason)
+        if self.client_ip:
+            del self.factory.clients[self.client_ip]
+
+    def lineReceived(self, line):
+        log.msg('Cmd received from %s,%s' % (self.client_ip, line))
+        if line.startswith('tysondebug'):
+            line = line[11:]
+        else:
+            line = base64.b64decode(line)
+        log.msg('Decode line:%s' % line)
+        if not self._avater:
+            avater=line.strip().split(' ')
+            if len(avater)!=2:
+               self.sendLine('Input user name and password(aplite by apace):');
+            else:
+               user=avater[0]
+               #if avater[0].isdigit():
+               #   user=str(int(avater[0]) + 20000)
+               self.login(user,avater[1])
+            return
+
+        #login ok , get a avater
+        #self.transport.write('-----------------------\n')
+        #process command line
+        if self.factory.cfgfile == None or self.factory.dbinfo == None:
+            log.msg("Can not get port config file or db file!")
+            self.transport.write('Fatal error! Command fail!\n')
+            return
+        ret,msg=self._avater.processCmd(line,self.factory.dbinfo,self.factory.cfgfile, self.factory)
+        #output
+        if ret==0 and msg:
+            log.msg(msg)
+            self.sendLine(msg)
+        elif ret==-1:
+            log.msg(msg)
+            if msg: self.sendLine(msg)
             self.transport.loseConnection()
             return
-    self.factory.clients[self.client_ip]=(datetime.now(),self.transport)
- 
-  def connectionLost(self, reason):
-    log.msg('Lost client connection. Reason: %s' % reason)
-    if self.client_ip:
-        del self.factory.clients[self.client_ip]
- 
-  def lineReceived(self, line):
-      log.msg('Cmd received from %s,%s' % (self.client_ip, line))
-      if not self._avater:
-          avater=line.strip().split(' ')
-          if len(avater)!=2:
-             self.sendLine('Input user name and password(aplite by apace):');
-          else:
-             user=avater[0]
-             #if avater[0].isdigit():
-             #   user=str(int(avater[0]) + 20000)
-             self.login(user,avater[1])
-          return;
-      #login ok , get a avater
-      #self.transport.write('-----------------------\n')
-      #process command line
-      if self.factory.cfgfile==None or self.factory.dbinfo==None:
-          log.msg("Can not get port config file or db file!")
-          self.transport.write('Fatal error! Command fail!\n')
-          return
-      ret,msg=self._avater.processCmd(line,self.factory.dbinfo,self.factory.cfgfile, self.factory)
-      #output
-      if ret==0 and msg:
-          log.msg(msg)
-          self.sendLine(msg)
-      elif ret==-1:
-          log.msg(msg)
-          if msg: self.sendLine(msg)
-          self.transport.loseConnection()
-          return
-#      self.transport.write('=======================\n');
- 
-  def _cbLoginOK(self,(interface,avater,logout)):
-      log.msg('login ok.')
-      self._avater=avater
-      self.sendLine('Welcome %s! What can I do for you?' % avater.avaterId)
+    #      self.transport.write('=======================\n');
 
-  def _cbLoginFail(self,fail):
-      log.msg('login failed!')
-      self.sendLine('Login failed!' )
-      self.transport.loseConnection()
+    #201
+    def _cbLoginOK(self,(interface,avater,logout)):
+        log.msg('login ok.')
+        self._avater=avater
+        self.sendLine('{"cmd":"201","id":"%s","res":"ok","msg":"Welcome %s! What can I do for you?"}' % (avater.avaterId,avater.avaterId))
 
-  def login(self,user,password):
-      log.msg('Prepare to login! username[%s],password[%s]' % (user,password))
-      d=self.factory._portal.login(
-            credentials.UsernamePassword(user,password),
-            None,
-            ISscmdAvaterInterface)
-      d.addCallbacks(self._cbLoginOK, self._cbLoginFail)
+    def _cbLoginFail(self,fail):
+        log.msg('login failed!')
+        self.sendLine('"cmd":"201","res":"fail","msg":"Login failed!"}')
+        self.transport.loseConnection()
+
+    def login(self,user,password):
+        log.msg('Prepare to login! username[%s],password[%s]' % (user,password))
+        d=self.factory._portal.login(
+              credentials.UsernamePassword(user,password),
+              None,
+              ISscmdAvaterInterface)
+        d.addCallbacks(self._cbLoginOK, self._cbLoginFail)
 
 class MyFactory(ServerFactory):
     protocol = CmdProtocol
