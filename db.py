@@ -32,7 +32,6 @@ class ssdb:
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
         #reg login id
         self.cur.execute('create table if not exists reg(id integer PRIMARY KEY autoincrement,email TEXT unique,pass TEXT,name TEXT,qq TEXT,phone TEXT,vcode TEXT,vcodetime datetime,status TEXT)')
-        self.cur.execuete('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
         try:
             self.cur.execute('alter table reg add column feerateid integer')
         except: pass;
