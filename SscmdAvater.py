@@ -398,7 +398,7 @@ class SscmdAvater(object):
             signalpass(0)
             factory.reloadUser();  # 重新加载用户资料
             log.msg('OK,config file is reseted to db pay user infomation!');
-            dbinfo.addlog(self.avaterId, port, line);
+            dbinfo.addlog(self.avaterId, 0, line);
             return 0, 'OK,config file is reseted to db pay user infomation!'
 
         if cmd[0] == 'restart' and self.usertype == 'admin':
