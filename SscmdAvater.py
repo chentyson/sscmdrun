@@ -395,7 +395,7 @@ class SscmdAvater(object):
                     port = r[cols.index('port')];
                     cfgfile.portpass()[str(port)] = r[cols.index('pass')];
             cfgfile.save_config();
-            signalpass(port)
+            signalpass(0)
             factory.reloadUser();  # 重新加载用户资料
             log.msg('OK,config file is reseted to db pay user infomation!');
             dbinfo.addlog(self.avaterId, port, line);
