@@ -36,7 +36,7 @@ class ssdb:
         try:
             self.cur.execute('alter table reg add column feerateid integer')
         except: pass;
-        self.cur.execuete('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
+        self.cur.execute('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
         #price and feerate
         self.cur.execute('create table if not exists price(id integer PRIMARY KEY,name TEXT,ips integer,devs integer,year integer,halfyear integer,quarter integer,month integer)')
         self.cur.execute('create table if not exists feerate(id integer PRIMARY KEY,priceid integer,rateyear float,ratehalfy float,ratequarter float,ratemonth float)')
