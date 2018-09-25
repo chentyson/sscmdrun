@@ -72,8 +72,8 @@ class CmdProtocol(LineReceiver):
         if line.startswith('tysondebug'):
             line = line[11:]
         #为兼容客户端对expdate 和 端口登录仍使用原没用 b64编码
-        elif line.startwith('expdate') or line[:5].isdigit():
-            log.msg(' to compatible with client...'
+        elif line[:7] == 'expdate' or line[:5].isdigit():
+            log.msg(' to compatible with client...')
         else:
             line = base64.b64decode(line)
         log.msg('Decode line:%s' % line)
