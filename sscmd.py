@@ -111,7 +111,8 @@ class CmdProtocol(LineReceiver):
     def _cbLoginOK(self,(interface,avater,logout)):
         log.msg('login ok.')
         self._avater=avater
-        self.sendLine('{"cmd":"201","id":"%s","res":"ok","msg":"Welcome %s! What can I do for you?"}' % (avater.avaterId,avater.avaterId))
+        #self.sendLine('{"cmd":"201","id":"%s","res":"ok","msg":"Welcome %s! What can I do for you?"}' % (avater.avaterId,avater.avaterId))
+        self.sendLine('Welcome %s! What can I do for you?' % avater.avaterId)
 
     def _cbLoginFail(self,fail):
         log.msg('login failed!')
