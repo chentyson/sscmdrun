@@ -5,8 +5,8 @@ if [ "$#" -eq "2" ]; then
     exit 1
 fi
 
-cp /etc/shadowsocks/sscmd.db /etc/shadowsocks/sscmd.db.$(date +%Y%m%d_%H%m%s)
-cp /etc/shadowsocks/config.json /etc/shadowsocks/config.json.$(date +%Y%m%d_%H%m%s)
+mv /etc/shadowsocks/sscmd.db /etc/shadowsocks/sscmd.db.$(date +%Y%m%d_%H%m%s)
+mv /etc/shadowsocks/config.json /etc/shadowsocks/config.json.$(date +%Y%m%d_%H%m%s)
 scp root@$1:/etc/shadowsocks/sscmd.db /etc/shadowsocks/
 scp root@$1:/etc/shadowsocks/config.json /etc/shadowsocks/
 ~/sscmdrun/runss

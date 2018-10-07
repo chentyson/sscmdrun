@@ -174,7 +174,8 @@ class SscmdAvater(object):
             cols, rows = dbinfo.find(userinfo)
             # 如果记录数较多采用记录集返回
             if len(rows) >= 1:
-                msg = str(cols) + '\n' + '\n'.join(str(a) for a in rows) + '\n' + str(len(rows)) + ' records found!\n'
+                #msg = str(cols) + '\n' + '\n'.join(str(a) for a in rows) + '\n' + str(len(rows)) + ' records found!\n'
+                msg = '\n'.join(' '.join(cols[i] + ':' + str(a[i]) for i in range(len(cols)-1)) for a in rows) + '\n' + str(len(rows)) + ' records found!\n'
             # 如果只有一条,则用格式返回
             if info and len(rows) == 1:
                 ips = str(rows[0][cols.index('ips')])
@@ -196,8 +197,8 @@ class SscmdAvater(object):
                     astat = '停用'
                 else:
                     astat = '正常'
-                msg += '\n' + info % (
-                int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
+                #msg += 'port:%s pass:%s qq:%s email:%s wechat:%s startdate:%s enddate:%s devs:%s ips:%s status:%s' % (cmd[1], str(rows[0][cols.index('pass')]), str(rows[0][cols.index('qq')]), str(rows[0][cols.index('email')]), str(rows[0][cols.index('wechat')]), str(rows[0][cols.index('startdate')]), str(rows[0][cols.index('enddate')]), str(rows[0][cols.index('devs')]), str(rows[0][cols.index('ips')]), str(rows[0][cols.index('status')]))
+                msg += '\n' + info % (int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
             if len(rows) < 1:
                 msg = '查无满足条件账户记录!'
             return 0, msg
@@ -505,10 +506,11 @@ class SscmdAvater(object):
             res, msg = dbinfo.reg(logininfo);
             return 0, '{"cmd":101,"res":"%s","msg":"%s"}' % (res, msg)
         # 102
-        if cmd[0] == 'approve' and self.usertype in ['admin']:
-            if len(cmd) < 3 or not ('@' in cmd[1]) or not ('.' in cmd[1]) or not cmd[2].isdigit():
-                return 0, '{"cmd":"102","res":"fail","msg":"Invalid command. usage:approve <email> <feetype>”}'
-            ret1, ret2 = dbinfo.regapprove(cmd[1], int(cmd[2]))
+        if cmd[0] == 'regupdate' and self.usertype in ['admin']:
+            if len(cmd) < 3 or not ('@' in cmd[1]) or not ('.' in cmd[1]) or not ('{' in cmd[2]) or not ('}' in cmd[2]):
+                return 0, '{"cmd":"102","res":"fail","msg":"Invalid command. usage:appupdate <email> <json info>”}'
+            userinfo = json.loads(cmd[2])
+            ret1, ret2 = dbinfo.regupdate(cmd[1], userinfo)
             if ret1 == 'ok':
                 factory.reloadUser()  # 重新加载用户资料
             return 0, '{"cmd":"102","res":"%s","msg":"%s"}' % (ret1, ret2)

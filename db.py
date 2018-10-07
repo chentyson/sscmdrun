@@ -92,25 +92,40 @@ class ssdb:
             log.err()
             return 'err','register failed! got an exception!'
 
-    def regapprove(self,email,feerateid):
+    def regupdate(self,email,userinfo):
         try:
-            log.msg('register approving %s, use feerateid is %d...' % (email,feerateid))
-            rows = self.cur.execute('select id from feerate where id=%s' % feerateid).fetchall()
-            if len(rows)==0:
+            log.msg('register update %s, info:%s...' % (email,userinfo))
+            feerateid = int(userinfo['feeid'])
+            rows=[]
+            if feerateid:
+                rows = self.cur.execute('select id from feerate where id=%s' % feerateid).fetchall()
+            if len(rows)==0 or not feerateid:
                 return 'nofind', '审核用户通过的费用方案 %s 不存在！' % feerateid
             rows = self.cur.execute('select status from reg where email="%s"' % email).fetchall()
             if len(rows) == 0:
-                return 'nofind', '无法找到审核的 email: %s ' % email
-            if not rows[0][0] == 'pending':
-                return 'errstat', '该用户状态无需审核！'
-            ret = self.cur.execute('update reg set status="ok",feerateid=%d where email="%s"' % (feerateid,email))
+                return 'nofind', '无法找到变更的email账户: %s ' % email
+
+            qq = userinfo['qq']
+            if qq:
+                self.cur.execute('update reg set qq="%s" where email="%s"' % (qq, email))
+            phone = userinfo['phone']
+            if phone:
+                self.cur.execute('update reg set phone="%s" where email="%s"' % (phone, email))
+            name = userinfo['name']
+            if name:
+                self.cur.execute('update reg set name="%s" where email="%s"' % (name, email))
+            status = userinfo['status']
+            if status:
+                self.cur.execute('update reg set status="%s" where email="%s"' % (status, email))
+            if feerateid:
+                self.cur.execute('update reg set feerateid=%d where email="%s"' % (feerateid, email))
             self.conn.commit();
             #log.msg('update result:%s' % ret.fetchall())
             return 'ok', 'ok'
         except Exception as e:
             log.err('register approve failed! error:%s' % e.message)
             log.err()
-            return 'fail', '注册审批失败，有异常产生！'
+            return 'fail', '修改失败，有异常产生！'
 
     # 查找信息，根据userinfo里面的内容，先匹配端口，再模糊匹配每个信息
     def regfind(self, userinfo={}):

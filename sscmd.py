@@ -69,14 +69,14 @@ class CmdProtocol(LineReceiver):
 
     def lineReceived(self, line):
         log.msg('Cmd received from %s,%s' % (self.client_ip, line))
-        #if line.startswith('tysondebug'):
-        #    line = line[11:]
+        if line.startswith('tysondebug'):
+            line = line[11:]
         #为兼容客户端对expdate 和 端口登录仍使用原没用 b64编码
-        #elif line[:7] == 'expdate' or line[:5].isdigit():
-        #    log.msg(' to compatible with client...')
-        #else:
-        #    line = base64.b64decode(line)
-        #log.msg('Decode line:%s' % line)
+        elif line[:7] == 'expdate' or line[:5].isdigit():
+            log.msg('use origin line for compatibling with client...')
+        else:
+            line = base64.b64decode(line)
+            log.msg('Decode line:%s' % line)
         if not self._avater:
             avater=line.strip().split(' ')
             if len(avater)!=2:
@@ -111,8 +111,8 @@ class CmdProtocol(LineReceiver):
     def _cbLoginOK(self,(interface,avater,logout)):
         log.msg('login ok.')
         self._avater=avater
-        #self.sendLine('{"cmd":"201","id":"%s","res":"ok","msg":"Welcome %s! What can I do for you?"}' % (avater.avaterId,avater.avaterId))
-        self.sendLine('Welcome %s! What can I do for you?' % avater.avaterId)
+        self.sendLine('Welcome,{"cmd":"201","id":"%s","res":"ok","msg":"Welcome %s! What can I do for you?"}' % (avater.avaterId,avater.avaterId))
+        #self.sendLine('Welcome %s! What can I do for you?' % avater.avaterId)
 
     def _cbLoginFail(self,fail):
         log.msg('login failed!')
@@ -171,11 +171,11 @@ class MyFactory(ServerFactory):
         self.checker=checkers.InMemoryUsernamePasswordDatabaseDontUse()
         self._portal = self.getaportal()
         self.regid={}
-        
+
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
-	    
-        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day 
+
+        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day
 
         log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
         #first, stop all expired port,and mail to user
@@ -186,7 +186,7 @@ class MyFactory(ServerFactory):
         mailcheck.mailtest(self)
         #mail to stoped user to buy
         mailcheck.mailstoped(self)
-    
+
 log.startLogging(sys.stdout)
 #log.startLogging(open(r"./sscmd.log",'a'))
 myfac=MyFactory(20)
