@@ -382,7 +382,7 @@ class SscmdAvater(object):
             cfgfile.save_config();
             signalpass(port)
             factory.reloadUser();  # 重新加载用户资料
-            log.msg('Port[%d] is deleted from config file! userinfO:%s' % (port, str(rows))
+            log.msg('Port[%d] is deleted from config file! userinfO:%s' % (port, str(rows)))
             dbinfo.addlog(self.avaterId, port, line);
             return 0, 'OK,port[%d] is deleted. ' % port
 
