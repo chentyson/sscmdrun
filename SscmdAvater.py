@@ -78,6 +78,8 @@ def signalpass(port):
         os.kill(i, signal.SIGHUP)
         log.msg('Sent a SIGHUP signal to ss, done');
 
+def getaid(port):
+    return config.proxyname + '-' + config.serverip[1:3]+str(port)[2:5]
 
 class SscmdAvater(object):
     implements(ISscmdAvaterInterface)
@@ -102,7 +104,7 @@ class SscmdAvater(object):
 
         if cmd[0] == 'exit': return -1, None
 
-        portinfo = '欢迎您使用震撼翻墙软件，以下是您的账户信息：\n\n服务器IP:' + config.serverip + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装步骤：运行安装软件，弹出的配置界面填入以上服务器ip、端口和密码，点确定即可！\n注意：安装过程如有360等拦截窗，切记选择允许或信任！\n\n安装完成打开浏览器测试地址：https://www.google.com/ncr\n';
+        portinfo = '欢迎您成为震撼用户，请牢记您的账户ID：%s\n在您需要售后支持时请先报您的账户ID，或在续费支付时需备注您的账户ID\n以下是您的详细账户资料：\n\n服务器IP:' + config.serverip + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装使用步骤：微信搜索并关注公众号 震撼网络服务，进入后点公众号底部的安装帮助，按说明下载安装并设置即可。\n';
 
         if cmd[0] == 'cfglist' and self.usertype == 'admin':
             portlist = cfgfile.portpass();
@@ -146,7 +148,8 @@ class SscmdAvater(object):
             (port, password) = cfgfile.find_port(cmd[1])
             print port, password
             if port != '0':
-                return 0, portinfo % (int(port), password, '', '', '', '正常')
+                aid = getaid(row[cols.index('port')])
+                return 0, portinfo % (aid, int(port), password, '', '', '', '正常')
             else:
                 return 0, 'Port or password can not find [%s]!\n' % cmd[1]
 
@@ -198,7 +201,7 @@ class SscmdAvater(object):
                 else:
                     astat = '正常'
                 #msg += 'port:%s pass:%s qq:%s email:%s wechat:%s startdate:%s enddate:%s devs:%s ips:%s status:%s' % (cmd[1], str(rows[0][cols.index('pass')]), str(rows[0][cols.index('qq')]), str(rows[0][cols.index('email')]), str(rows[0][cols.index('wechat')]), str(rows[0][cols.index('startdate')]), str(rows[0][cols.index('enddate')]), str(rows[0][cols.index('devs')]), str(rows[0][cols.index('ips')]), str(rows[0][cols.index('status')]))
-                msg += '\n' + info % (int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
+                msg += '\n' + info % (getaid(row[cols.index('port')]), int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
             if len(rows) < 1:
                 msg = '查无满足条件账户记录!'
             return 0, msg
@@ -258,7 +261,7 @@ class SscmdAvater(object):
                 astat = '停用'
             else:
                 astat = '正常'
-            return 0, portinfo % (port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            return 0, portinfo % (getaid(port), port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
 
         if cmd[0] == 'update' and self.usertype in ['admin', 'login']:
             if len(cmd) < 3 or not cmd[1].isdigit():
