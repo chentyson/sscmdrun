@@ -104,7 +104,7 @@ class SscmdAvater(object):
 
         if cmd[0] == 'exit': return -1, None
 
-        portinfo = '欢迎您成为震撼用户！请牢记您的账户ID\n-------------\n%s\n------------\n无论在您需要售后支持或续费支付时都先备注您的账户ID，以表明身份！\n以下是您的详细账户资料：\n\n服务器IP:' + config.serverip + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装使用步骤：微信搜索并关注公众号 震撼网络服务，进入后点公众号底部的安装帮助，按说明下载安装并设置即可。\n';
+        portinfo = '欢迎您成为震撼用户！请牢记您的账户ID\n-------------\n%s\n------------\n无论您需要售后支持或续费支付时都需备注您的账户ID，以表明身份！\n\n以下是您的详细账户资料：\n\n服务器IP:' + config.serverip + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装使用步骤：微信搜索并关注公众号 震撼网络服务，进入后点公众号底部的安装帮助，按说明下载安装并设置即可。\n';
 
         if cmd[0] == 'cfglist' and self.usertype == 'admin':
             portlist = cfgfile.portpass();
