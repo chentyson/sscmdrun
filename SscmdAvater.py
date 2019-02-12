@@ -201,7 +201,7 @@ class SscmdAvater(object):
                 else:
                     astat = '正常'
                 #msg += 'port:%s pass:%s qq:%s email:%s wechat:%s startdate:%s enddate:%s devs:%s ips:%s status:%s' % (cmd[1], str(rows[0][cols.index('pass')]), str(rows[0][cols.index('qq')]), str(rows[0][cols.index('email')]), str(rows[0][cols.index('wechat')]), str(rows[0][cols.index('startdate')]), str(rows[0][cols.index('enddate')]), str(rows[0][cols.index('devs')]), str(rows[0][cols.index('ips')]), str(rows[0][cols.index('status')]))
-                msg += '\n' + info % (getaid(row[cols.index('port')]), int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
+                msg += '\n' + info % (getaid(cmd[1]), int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
             if len(rows) < 1:
                 msg = '查无满足条件账户记录!'
             return 0, msg
