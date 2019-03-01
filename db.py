@@ -17,6 +17,7 @@ from random import choice
 class ssdb:
 
     def __init__(self):
+        self._admin='tyson'
         log.msg('begin init ssdb...')
         self.conn = sqlite3.connect('/etc/shadowsocks/sscmd.db')
         self.cur = self.conn.cursor();
@@ -26,7 +27,11 @@ class ssdb:
             self.cur.execute('alter table users add column billdate TEXT') 
             self.cur.execute('alter table users add column loginid TEXT') 
             self.cur.execute('alter table users add column deldate TEXT')
-        except: pass;
+        except: pass
+        try:
+            self.cur.execute('alter table users add column vcode TEXT')
+            self.cur.execute('alter table users add column vcodetime datetime')
+        except: pass
         self.cur.execute('create table if not exists delusers(port integer,pass varchar(20),qq varchar(16),email varchar(30),wechat varchar(20),startdate TEXT,enddate TEXT, ips integer,devs integer,status varchar(10), billdate TEXT,loginid TEXT,delloginid TEXT, deldate datetime)')
         #logs
         self.cur.execute('create table if not exists logs(id integer PRIMARY KEY autoincrement,loginid TEXT,time datetime,port integer,cmd TEXT,userinfo TEXT)')
@@ -35,7 +40,7 @@ class ssdb:
         try:
             self.cur.execute('alter table reg add column feerateid integer')
         except: pass;
-        self.cur.execute('replace into reg(id,email,pass,name,status,feerateid) values(1,"tyson","IamadminTyson","admin","ok",1)')
+        self.cur.execute('replace into reg(id,email,pass,name,status,feerateid) values(1,"' + self._admin + '","IamadminTyson","admin","ok",1)')
         #price and feerate
         self.cur.execute('create table if not exists price(id integer PRIMARY KEY,name TEXT,ips integer,devs integer,year integer,halfyear integer,quarter integer,month integer)')
         self.cur.execute('create table if not exists feerate(id integer PRIMARY KEY,priceid integer,rateyear float,ratehalfy float,ratequarter float,ratemonth float)')
@@ -68,6 +73,28 @@ class ssdb:
             log.err('gen and mail verification code error:%s' % e.message)
             log.err()
             return ''
+
+    def portvcode(self,port):
+        code = self.GenPassword(6,string.digits)
+        try:
+            rows = self.cur.execute('select email from users where port=%d' % port).fetchall()
+            if len(rows)==0:
+                return 'noport','未找到该端口记录。'
+            email = rows[0][0]
+            if not email or not ('@' in email):
+                return 'noemail','该端口尚未登记 email 地址，请联系管理员登记后使用该功能。'
+
+            self.cur.execute('update users set vcode="%s",vcodetime=datetime("now","30 minutes") where port=%d' % (code,port))
+            self.conn.commit()
+            if not ssmail.mail('震撼网络服务重置密码验证码','你本次验证码是:%s\n注意：验证码在你点获取验证码时起30分钟内有效。' % code,'',email):
+                return 'mailerr','验证码发送异常，请检查邮箱地址是否正确。有疑问可联系管理员。'
+            else:
+                return 'ok','ok'
+        except Exception as e:
+            log.err('gen and mail verification code error:%s' % e.message)
+            log.err()
+            return ''
+
 
     def reg(self,logininfo={}):
         try:
@@ -266,7 +293,7 @@ class ssdb:
         cols, rows = self.find({'port': port});
         if len(rows) == 0: return 0, [];
         if rows[0][cols.index('status')] != 'stop': return -1, [];
-        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,"%s",datetime("now") from users where port=%d' % (loginid,port));
+        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,"%s",strftime("%Y-%m-%d %H:%M:%S","now") from users where port=%d' % (loginid,port));
         self.cur.execute('delete from users where port=%d' % port);
         self.conn.commit()
         return port, dict(zip(cols, rows[0]))
@@ -326,7 +353,7 @@ class ssdb:
             if billdate == None or billdate == '' or billdate=='None':
                 billdate = row[istart];
             if deldate>0: #if port is deleted,enddate is which day deleted
-                enddate=deldate;
+                enddate=deldate.split(' ')[0].replace('-','');
             if billdate>=enddate: continue;
 
             dend = datetime.strptime(enddate,"%Y%m%d")
@@ -370,3 +397,6 @@ class ssdb:
         if len(rows)<1:
             return -1,'uknown email or wrong password!'
         return 0,rows
+
+    def portips(self):
+        return 0,self.cur.execute('select port,ips,devs from users').fetchall()
