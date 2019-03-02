@@ -293,7 +293,7 @@ class ssdb:
         cols, rows = self.find({'port': port});
         if len(rows) == 0: return 0, [];
         if rows[0][cols.index('status')] != 'stop': return -1, [];
-        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,"%s",strftime("%Y-%m-%d %H:%M:%S","now") from users where port=%d' % (loginid,port));
+        self.cur.execute('insert into delusers(port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,delloginid,deldate) select port,pass,qq,email,wechat,startdate,enddate,ips,devs,billdate,loginid,status,"'+str(loginid)+'",strftime("%Y-%m-%d %H:%M:%S","now") from users where port='+str(port));
         self.cur.execute('delete from users where port=%d' % port);
         self.conn.commit()
         return port, dict(zip(cols, rows[0]))
