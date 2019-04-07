@@ -232,6 +232,11 @@ class ssdb:
         if userinfo.get('port') != None:
             if sql != '': sql += ' and ';
             sql = 'port=%d' % userinfo.get('port')
+        elif userinfo.get('ports') != None:
+            pp = userinfo.get('ports').split(',')
+            for p in pp:
+                if sql != '': sql += ' or ';
+                sql = 'port=%s' % p
         else:
             if userinfo.get('qq') != None:
                 if sql != '': sql += ' and ';
@@ -300,7 +305,7 @@ class ssdb:
 
     def getfreeport(self, ips):
         rows = self.cur.execute('select port from users where port>=11000 order by port').fetchall();
-        for i in range(11000, 29999):
+        for i in range(32000, 32500):
             try:
                 rows.index((i,));
             except ValueError:
