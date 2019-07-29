@@ -175,7 +175,7 @@ class MyFactory(ServerFactory):
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
 
-        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day
+        #if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day
 
         log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
         #first, stop all expired port,and mail to user
