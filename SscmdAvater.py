@@ -79,8 +79,14 @@ def signalpass(port):
         os.kill(i, signal.SIGHUP)
         log.msg('Sent a SIGHUP signal to ss, done');
 
+def getaport(port):
+    return config.portpre + str(port)[len(config.portpre):5]
+
 def getaid(port):
-    return config.proxyname + '-' + config.serverip[1:3]+str(port)[2:5]
+    return config.proxyname + '-' + getaport(port)
+
+def getaserver:
+    return config.proxyname + '.boosoo.cn'
 
 class SscmdAvater(object):
     implements(ISscmdAvaterInterface)
@@ -262,7 +268,7 @@ class SscmdAvater(object):
                 astat = '停用'
             else:
                 astat = '正常'
-            result = portinfo % (getaid(port), port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            result = portinfo % (getaid(port), getaport(port), userinfo['pass'], atype, ips, userinfo['enddate'], astat)
             if userinfo['email']:
                 deferToThread(mail, '震撼网络账户开户资料',result,'', userinfo['email'] )  
             return 0, result

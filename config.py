@@ -1,4 +1,5 @@
 class config:
     serverip = 's00.boosoo.cn'
     proxyname = 'ph1'
-    qq = '1716677'
+    qq = '3556841256'
+    portpre = '33'
