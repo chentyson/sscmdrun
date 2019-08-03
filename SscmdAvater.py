@@ -264,7 +264,7 @@ class SscmdAvater(object):
                 astat = '正常'
             result = portinfo % (getaid(port), port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
             if userinfo['email']:
-                deferToThread(mail, result, userinfo['email'] )  
+                deferToThread(mail, '震撼网络账户开户资料',result,'', userinfo['email'] )  
             return 0, result
 
         if cmd[0] == 'update' and self.usertype in ['admin', 'login']:
