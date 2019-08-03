@@ -85,7 +85,7 @@ def getaport(port):
 def getaid(port):
     return config.proxyname + '-' + getaport(port)
 
-def getaserver:
+def getaserver():
     return config.proxyname + '.boosoo.cn'
 
 class SscmdAvater(object):
