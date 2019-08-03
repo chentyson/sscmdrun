@@ -88,7 +88,7 @@ def mailtest(cols,rows):
         
         subject = subject % port
         text_content = text_content % (port,startdate,port,config.qq)
-        html_content = html_content % (port,startdate,port,congig.qq)
+        html_content = html_content % (port,startdate,port,config.qq)
         mail(subject,text_content,html_content,email)
 
 
