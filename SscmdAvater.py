@@ -6,11 +6,12 @@ import commands
 from twisted.python import log
 from zope.interface import Interface, implements
 from twisted.cred import checkers, credentials, portal
+from twisted.internet.threads import deferToThread
 import os
 import signal
 from config import config
 import telnetlib
-
+from ssmail import mail
 
 class ISscmdAvaterInterface(Interface):
     def logout(self):
@@ -261,7 +262,10 @@ class SscmdAvater(object):
                 astat = '停用'
             else:
                 astat = '正常'
-            return 0, portinfo % (getaid(port), port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            result = portinfo % (getaid(port), port, userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            if userinfo['email']:
+                deferToThread(mail, result, userinfo['email'] )  
+            return 0, result
 
         if cmd[0] == 'update' and self.usertype in ['admin', 'login']:
             if len(cmd) < 3 or not cmd[1].isdigit():
