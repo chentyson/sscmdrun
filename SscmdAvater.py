@@ -80,10 +80,10 @@ def signalpass(port):
         log.msg('Sent a SIGHUP signal to ss, done');
 
 def getaport(port):
-    return config.portpre + str(port)[len(config.portpre):5]
+    return int(config.portpre + str(port)[len(config.portpre):5])
 
 def getaid(port):
-    return config.proxyname + '-' + getaport(port)
+    return config.proxyname + '-' + str(getaport(port))
 
 def getaserver():
     return config.proxyname + '.boosoo.cn'
