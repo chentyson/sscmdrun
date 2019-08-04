@@ -13,6 +13,8 @@ from config import config
 import telnetlib
 from ssmail import mail
 
+myconfig = config()
+
 class ISscmdAvaterInterface(Interface):
     def logout(self):
         '''''
@@ -79,15 +81,6 @@ def signalpass(port):
         os.kill(i, signal.SIGHUP)
         log.msg('Sent a SIGHUP signal to ss, done');
 
-def getaport(port):
-    return int(config.portpre + str(port)[len(config.portpre):5])
-
-def getaid(port):
-    return config.proxyname + '-' + str(getaport(port))
-
-def getaserver():
-    return config.proxyname + '.boosoo.cn'
-
 class SscmdAvater(object):
     implements(ISscmdAvaterInterface)
     avaterId = None
@@ -111,7 +104,7 @@ class SscmdAvater(object):
 
         if cmd[0] == 'exit': return -1, None
 
-        portinfo = '欢迎您成为震撼用户！请牢记您的账户ID\n-------------\n%s\n------------\n无论您需要售后支持或续费支付时都需备注您的账户ID，以表明身份！\n\n以下是您的详细账户资料：\n\n服务器IP:' + config.serverip + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装使用步骤：微信搜索并关注公众号 震撼网络服务，进入后点公众号底部的安装帮助，按说明下载安装并设置即可。\n';
+        portinfo = '欢迎您成为震撼用户！请牢记您的账户ID\n-------------\n%s\n------------\n无论您需要售后支持或续费支付时都需备注您的账户ID，以表明身份！\n\n以下是您的详细账户资料：\n\n服务器IP:' + myconfig.getaserver() + '\n服务器端口:%d\n密码:%s\n账户类型:%s\n设备数:%s\n服务到期日:%s\n状态:%s\n\n安装使用步骤：微信搜索并关注公众号 震撼网络服务，进入后点公众号底部的安装帮助，按说明下载安装并设置即可。\n';
 
         if cmd[0] == 'cfglist' and self.usertype == 'admin':
             portlist = cfgfile.portpass();
@@ -155,7 +148,7 @@ class SscmdAvater(object):
             (port, password) = cfgfile.find_port(cmd[1])
             print port, password
             if port != '0':
-                aid = getaid(row[cols.index('port')])
+                aid = myconfig.getaid(row[cols.index('port')])
                 return 0, portinfo % (aid, int(port), password, '', '', '', '正常')
             else:
                 return 0, 'Port or password can not find [%s]!\n' % cmd[1]
@@ -208,7 +201,7 @@ class SscmdAvater(object):
                 else:
                     astat = '正常'
                 #msg += 'port:%s pass:%s qq:%s email:%s wechat:%s startdate:%s enddate:%s devs:%s ips:%s status:%s' % (cmd[1], str(rows[0][cols.index('pass')]), str(rows[0][cols.index('qq')]), str(rows[0][cols.index('email')]), str(rows[0][cols.index('wechat')]), str(rows[0][cols.index('startdate')]), str(rows[0][cols.index('enddate')]), str(rows[0][cols.index('devs')]), str(rows[0][cols.index('ips')]), str(rows[0][cols.index('status')]))
-                msg += '\n' + info % (getaid(cmd[1]), int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
+                msg += '\n' + info % (myconfig.getaid(cmd[1]), int(cmd[1]), str(rows[0][cols.index('pass')]), atype, devs, str(rows[0][cols.index('enddate')]), astat)
             if len(rows) < 1:
                 msg = '查无满足条件账户记录!'
             return 0, msg
@@ -268,9 +261,9 @@ class SscmdAvater(object):
                 astat = '停用'
             else:
                 astat = '正常'
-            result = portinfo % (getaid(port), getaport(port), userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            result = portinfo % (myconfig.getaid(port), myconfig.getaport(port), userinfo['pass'], atype, ips, userinfo['enddate'], astat)
             if userinfo['email']:
-                deferToThread(mail, '震撼网络账户开户资料(' + getaid(port) + ')',result,'', userinfo['email'] )  
+                deferToThread(mail, '震撼网络账户开户资料(' + myconfig.getaid(port) + ')',result,'', userinfo['email'] )  
             return 0, result
 
         if cmd[0] == 'update' and self.usertype in ['admin', 'login']:
