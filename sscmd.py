@@ -14,6 +14,7 @@ import mailcheck
 import sstime
 from datetime import datetime
 import base64
+import commands
 
 #define admin user and pass
 _admin='tyson'
@@ -175,17 +176,23 @@ class MyFactory(ServerFactory):
     def accountcheck(self):
         #if sstime.now().strftime('%H')='00':
 
-        if sstime.now().strftime('%H')!='10': return  #at 10 o'clock evary day
-
-        log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
-        #first, stop all expired port,and mail to user
-        mailcheck.stopexp(self)
-        #then,warn all who will expired in 3 days
-        mailcheck.mailwillexp(self)
-        #then,mail to testing user expired after 2 days
-        mailcheck.mailtest(self)
-        #mail to stoped user to buy
-        mailcheck.mailstoped(self)
+        #at 10 o'clock evary day
+        if sstime.now().strftime('%H')=='10':
+            log.msg('Checking port status and mail to user if port is expired/will expire/testing...')
+            #first, stop all expired port,and mail to user
+            mailcheck.stopexp(self)
+            #then,warn all who will expired in 3 days
+            mailcheck.mailwillexp(self)
+            #then,mail to testing user expired after 2 days
+            mailcheck.mailtest(self)
+            #mail to stoped user to buy
+            mailcheck.mailstoped(self)
+        if sstime.now().strftime('%H')=='00':
+            status, output = commands.getstatusoutput("systemctl restart ss")
+            if status>0:
+                log.msg('Error when run command: systemctl restart ss, %s' % output) 
+            else:
+                log.msg('Restarted ss: %s' % output) 
 
 log.startLogging(sys.stdout)
 #log.startLogging(open(r"./sscmd.log",'a'))
