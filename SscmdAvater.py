@@ -81,6 +81,21 @@ def signalpass(port):
         os.kill(i, signal.SIGHUP)
         log.msg('Sent a SIGHUP signal to ss, done');
 
+def gettypestat( astatus, ips, devs ):
+    if astatus == 'test':
+        atype = '临时'
+    elif int(ips) == 1 and int(devs) > 2:
+        atype = '多设备共享网'
+    elif int(ips) > 2 and int(devs) > 2:
+        atype = '多设备独立网'
+    else:
+        atype = '个人版'
+    if astatus == 'stop':
+        astat = '停用'
+    else:
+        astat = '正常'
+    return atype,astat
+
 class SscmdAvater(object):
     implements(ISscmdAvaterInterface)
     avaterId = None
@@ -249,18 +264,7 @@ class SscmdAvater(object):
             factory.reloadUser()  # 重新加载用户资料
             ips = userinfo['ips']
             devs = userinfo['devs']
-            if userinfo['status'] == 'test':
-                atype = '临时'
-            elif int(ips) == 1 and int(devs) > 2:
-                atype = '多设备共享IP'
-            elif int(ips) > 2 and int(devs) > 2:
-                atype = '多设备独立IP'
-            else:
-                atype = '个人版'
-            if userinfo['status'] == 'stop':
-                astat = '停用'
-            else:
-                astat = '正常'
+            atype,astat = gettypestat( userinfo['status'], int(ips), int(devs) )
             result = portinfo % (myconfig.getaid(port), myconfig.getaport(port), userinfo['pass'], atype, ips, userinfo['enddate'], astat)
             if userinfo['email']:
                 deferToThread(mail, '震撼网络账户开户资料(' + myconfig.getaid(port) + ')',result,'', userinfo['email'] )  
@@ -550,6 +554,28 @@ class SscmdAvater(object):
                 msgs.append(col.copy())
             ret = {'cmd': '103', 'res': 'ok'}
             ret['msg'] = msgs
+            return 0, json.dumps(ret)
+    
+        #303
+        if cmd[0] == 'mail' and self.usertype in ['admin']:
+            if len(cmd) <> 2 or not cmd[1].isdigit():
+                return 0,'{"cmd":"303","res":"fail","msg":"Invalid command. usage:mail <port>"}'
+            port = int(cmd[1])
+            userinfo = {'port':port}
+            cols, rows = dbinfo.find(userinfo);
+            print( cols,rows ) 
+            if len(rows)<1:
+               return 0,'{"cmd":"303","res":"fail","msg":"port not found!"}'
+            for col in cols:
+                userinfo[col]=str(rows[0][cols.index(col)])
+            if not userinfo['email']:
+               return 0,'{"cmd":"303","res":"fail","msg":"no email addr found!"}'
+            ips = int(userinfo['ips'])
+            devs = int(userinfo['devs'])
+            atype,astat = gettypestat( userinfo['status'], ips, devs )
+            result = portinfo % (myconfig.getaid(port), myconfig.getaport(port), userinfo['pass'], atype, ips, userinfo['enddate'], astat)
+            deferToThread(mail, '震撼网络账户资料(' + myconfig.getaid(port) + ')',result,'', userinfo['email'])    
+            ret = {'cmd':'303','res':'ok'}
             return 0, json.dumps(ret)
 
         return 0, 'Fail,Unknown command or permission denied.\n'  # Command should be "add","stop","del","list","find","exit","count","commit"\n');

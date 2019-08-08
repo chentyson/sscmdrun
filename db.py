@@ -40,10 +40,27 @@ class ssdb:
         try:
             self.cur.execute('alter table reg add column feerateid integer')
         except: pass;
-        self.cur.execute('replace into reg(id,email,pass,name,status,feerateid) values(1,"' + self._admin + '","IamadminTyson","admin","ok",1)')
+        self.cur.execute('replace into reg(id,email,pass,name,status,feerateid) values(1,"' + self._admin + '","IamadminTyson","admin","ok",0)')
         #price and feerate
         self.cur.execute('create table if not exists price(id integer PRIMARY KEY,name TEXT,ips integer,devs integer,year integer,halfyear integer,quarter integer,month integer)')
+        self.cur.execute('replace into price(id,name,ips,devs,year,halfyear,quarter,month) values(1,"personal",2,2,300,180,100,40)')
+        self.cur.execute('replace into price(id,name,ips,devs,year,halfyear,quarter,month) values(2,"5-devices",5,5,750,450,265,100)')
+
         self.cur.execute('create table if not exists feerate(id integer PRIMARY KEY,priceid integer,rateyear float,ratehalfy float,ratequarter float,ratemonth float)')
+
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(0,1,1,1,1,1)')   #origin price
+
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(1,1,0.9,0.9,0.9,0.9)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(2,1,0.8,0.8,0.8,0.8)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(3,1,0.7,0.7,0.7,0.7)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(4,1,0.6,0.6,0.6,0.6)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(5,1,0.5,0.5,0.5,0.5)')
+
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(21,2,0.9,0.9,0.9,0.9)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(22,2,0.8,0.8,0.8,0.8)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(23,2,0.7,0.7,0.7,0.7)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(24,2,0.6,0.6,0.6,0.6)')
+        self.cur.execute('replace into feerate(id,priceid,rateyear,ratehalfy,ratequarter,ratemonth) values(25,2,0.5,0.5,0.5,0.5)')
         
         self.conn.commit();
         log.msg('end init ssdb.');
