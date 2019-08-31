@@ -15,6 +15,7 @@ my_sender='info@boosoo.cn'    # 发件人邮箱账号
 my_pass = 'Zhenhan1716677'  # 发件人邮箱密码
 my_smtpserver='smtp.mxhichina.com'  #发件服务器地址
 my_smtpport=465
+myconfig = config()
 
 def mail(subject,text_content,html_content,my_user):
     ret=True
@@ -66,13 +67,13 @@ def mailwillexp(cols,rows):
         days=(end-sstime.now()).days+1
         #mail to user every 3 days if days>20, mail every 2 days if days>10, mail every day if days<=10
         if (days>10 and days%2==0) or (days<=10):
-            port=config.proxyname + '-' + config.serverip[1:3]+str(row[cols.index('port')])[2:5]
+            port=myconfig.getaid(int(row[cols.index('port')]))
             enddate=end.strftime('%Y-%m-%d')
             email=row[cols.index('email')]
 
             subject = subject % port
-            text_content = text_content % (port,enddate,days,port,config.qq)
-            html_content = html_content % (port,enddate,days,port,config.qq)
+            text_content = text_content % (port,enddate,days,port,myconfig.qq)
+            html_content = html_content % (port,enddate,days,port,myconfig.qq)
             mail(subject,text_content,html_content,email)
 
 def mailtest(cols,rows):
@@ -82,13 +83,13 @@ def mailtest(cols,rows):
     html_content = u'<!DOCTYPE html><html><body>尊敬的震撼网络临时用户，您目前正在试用以下震撼网络服务：<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp      账户ID:&nbsp<b>%s</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp服务开通日:&nbsp<b>%s</b><br><br>如试用满意，可扫描软件配置界面二维码支付成为正式版，并在支付时备注您的账户ID %s, 当然也可联系您的客服完成购买操作。<br><br>震撼科技&nbsp&nbsp QQ:%s<br>祝使用愉快！</body></html>'
     
     for row in rows:
-        port=config.proxyname + '-' + config.serverip[1:3]+str(row[cols.index('port')])[2:5]
+        port=myconfig.getaid(int(row[cols.index('port')]))
         startdate=row[cols.index('startdate')]
         email=row[cols.index('email')]
         
         subject = subject % port
-        text_content = text_content % (port,startdate,port,config.qq)
-        html_content = html_content % (port,startdate,port,config.qq)
+        text_content = text_content % (port,startdate,port,myconfig.qq)
+        html_content = html_content % (port,startdate,port,myconfig.qq)
         mail(subject,text_content,html_content,email)
 
 
@@ -99,12 +100,13 @@ def mailexp(cols,rows):
     html_content = u'<!DOCTYPE html><html><body>尊敬的震撼网络用户，您所使用的以下震撼网络账户：<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp    账户ID:<b>%s</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户到期日:<b>%s</b><br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp已经到期，服务已自动停止，如果您对我们的服务比较满意并且希望继续使用震撼网络服务，可扫描软件配置界面二维码续费，支付时请务必备注您的续费账户ID %s，也可联系您的客服。<br><br>震撼科技&nbsp&nbsp QQ:%s<br>祝使用愉快！</body></html>'
     
     for row in rows:
-        port=config.proxyname + '-' + config.serverip[1:3]+str(row[cols.index('port')])[2:5]
+        port=int(row[cols.index('port')])
+        aid=myconfig.getaid(port)
         enddate=row[cols.index('enddate')]
         email=row[cols.index('email')]
-        subject = subject % port
-        text_content = text_content % (port,enddate,port,config.qq)
-        html_content = html_content % (port,enddate,port,config.qq)
+        subject = subject % aid
+        text_content = text_content % (aid,enddate,aid,myconfig.qq)
+        html_content = html_content % (aid,enddate,aid,myconfig.qq)
         mail(subject,text_content,html_content,email)
 
 
@@ -116,12 +118,12 @@ def mailwarningdel(cols, rows):
     html_content = u'<!DOCTYPE html><html><body>尊敬的震撼网络用户，您所使用的以下震撼网络账户：<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp服务器端口:<b>%s</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户到期日:<b>%s</b><br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp已经过期很长时间，账户即将在几天后删除，删除后账户的累积用户积分也会被清0。如果您想保留该账户，扫描软件配置界面二维码续费，并在支付时备注续费端口号，也可联系您的客服。<br><br>震撼科技&nbsp&nbsp QQ:1716677<br>祝使用愉快！</body></html>'
 
     for row in rows:
-        port = config.serverip[1:3] + str(row[cols.index('port')])[2:5]
+        aid = myconfig.getaid(int(row[cols.index('port')]))
         enddate = row[cols.index('enddate')]
         email = row[cols.index('email')]
-        subject = subject % port
-        text_content = text_content % (port, enddate)
-        html_content = html_content % (port, enddate)
+        subject = subject % aid
+        text_content = text_content % (aid, enddate)
+        html_content = html_content % (aid, enddate)
         mail(subject, text_content, html_content, email)
 
 def mailstoped(cols,rows):
@@ -129,17 +131,18 @@ def mailstoped(cols,rows):
     lastdate=0
     for row in rows:
         email=row[cols.index('email')]
-        port=config.proxyname + '-' + config.serverip[1:3]+str(row[cols.index('port')])[2:5]
+        port=int(row[cols.index('port')])
+        aid=myconfig.getaid(port)
         enddate=row[cols.index('enddate')]
 
-        log.msg('port %s is stoped,will mail to info..' % port) 
+        log.msg('port %s is stoped,will mail to info..' % aid) 
         if not emails.has_key(email): emails[email]=[]
-        emails[email].append((port,enddate))
+        emails[email].append((aid,enddate))
     if len(emails)==0: return
 
-    subject = u'震撼翻墙服务已过期，继续使用吗？'
+    subject = u'震撼翻墙服务已过期，继续使用吗？' + aid
     for email in emails:
-        ports=u'<br>'.join(u'账户ID:<b>%s</b>&nbsp&nbsp&nbsp账户到期日:&nbsp<b>%s</b>' % (port,enddate) for port,enddate in emails[email])
+        ports=u'<br>'.join(u'账户ID:<b>%s</b>&nbsp&nbsp&nbsp账户到期日:&nbsp<b>%s</b>' % (aid,enddate) for aid,enddate in emails[email])
         text_content = u'  震撼网络用户您好，您所使用的账户已经过期！如果您还有使用该服务的需求，可在震撼软件配置界面直接扫码支付，支付时备注你需要续费的端口号即可，我们将会自动按备注端口按续费日为您重新开通，端口/密码无需变更。也可联系您的客服续费。\n\n震撼网络服务是专为外贸商务提供的一种网络中转服务，速度快、运行稳定，并同时提供电脑Windows版本、苹果Macbook版本、手机安卓和苹果IOS版本的软件，可同时在电脑和手机等移动端在线使用。我们为个人用户同时也为公司多人同时在线使用提供不同的账户版本。咨询可联系下方QQ，或直接回复邮件。\n\n 震撼科技  QQ:1716677 \n祝使用愉快！\n'
-        html_content = u'<!DOCTYPE html><html><body>震撼网络用户您好，您使用的下列账户已经过期：<br><br>%s<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户已自动停止，您还需要继续使用该服务吗？ 如果需要可在震撼软件配置界面扫码续费，支付时备注您需要续费的账户ID，2个月内您的账户及密码无需变更，续费后可直接使用。您也可联系您的客服进行续费操作。<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp震撼网络服务是专为外贸提供的网络中转解决方案，速度快、运行稳定，服务期内提供7×24小时售后技术支持。 我们同时提供Windows版本、Macbook版本、手机的安卓和苹果版本软件。可同时在电脑和手机使用。同时提供个人版和多人同时在线的多人版本。咨询可联系下方QQ，或直接回复邮件。<br><br>如您不再希望收到收件提醒，可直接回复内容为“不再提醒”的邮件即可！<br><br> 震撼科技&nbsp&nbsp QQ:%s<br>祝使用愉快！</body></html>' % (ports,config.qq)
+        html_content = u'<!DOCTYPE html><html><body>震撼网络用户您好，您使用的下列账户已经过期：<br><br>%s<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户已自动停止，您还需要继续使用该服务吗？ 如果需要可在震撼软件配置界面扫码续费，支付时备注您需要续费的账户ID，2个月内您的账户及密码无需变更，续费后可直接使用。您也可联系您的客服进行续费操作。<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp震撼网络服务是专为外贸提供的网络中转解决方案，速度快、运行稳定，服务期内提供7×24小时售后技术支持。 我们同时提供Windows版本、Macbook版本、手机的安卓和苹果版本软件。可同时在电脑和手机使用。同时提供个人版和多人同时在线的多人版本。咨询可联系下方QQ，或直接回复邮件。<br><br>如您不再希望收到收件提醒，可直接回复内容为“不再提醒”的邮件即可！<br><br> 震撼科技&nbsp&nbsp QQ:%s<br>祝使用愉快！</body></html>' % (aid,myconfig.qq)
         mail(subject,text_content,html_content,email)
