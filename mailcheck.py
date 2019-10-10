@@ -45,13 +45,13 @@ def mailtest(myfac):
 
 def mailwillexp(myfac):
     #mail to payed user who will expired after 5 day
-    cols,rows=getrows(myfac.dbinfo,6,'pay')
+    cols,rows=getrows(myfac.dbinfo,15,'pay')
     if len(rows)>0:
         deferToThread(ssmail.mailwillexp,cols,rows)
 
 def mailstoped(myfac):
     #mail to stoped users to buy service if they need it
-    cols,rows=getrows(myfac.dbinfo,-2,'stop','>=')
+    cols,rows=getrows(myfac.dbinfo,-1,'stop','>=')
     iend = cols.index('enddate')
     rr=[]
     for r in rows:

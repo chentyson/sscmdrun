@@ -55,7 +55,7 @@ def mail(subject,text_content,html_content,my_user):
     
 
 def mailwillexp(cols,rows):
-    subject = u'震撼网络服务即将到期续费提醒（%s）'
+    subject = u'震撼网络服务%d天到期续费提醒（%s）'
     text_content = u'尊敬的震撼网络用户：\n    您所使用的以下震撼网络账户：\n\n     账户ID:%s\n账户到期日:%s\n\n    即将在 %d 天后到期，届时网络服务将自动停止。为了不影响您的正常使用，特提醒您提前续费。\n    您可扫描软件配置界面二维码续费,支付时备注您续费的账户ID %s，我们收到后根据账户ID即可为您账户续期。您当然也可联系您的客服。\n\n震撼科技    QQ:%s'
     html_content = u'<!DOCTYPE html><html><body>尊敬的震撼网络用户，您所使用的以下震撼网络账户：<br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp      账户ID:<b>%s</b><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp账户到期日:<b>%s</b><br><br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp即将在&nbsp<b>%d天</b>&nbsp后到期>，届时网络服务将自动停止，为了不影响您的正常使用，特提醒您提前续费。您可扫描软件配置界面二维码续费，支付时请务必备注您续费的账户ID %s，以便我们识别时您的账户续费费用。当然您也可联系您的客服。<br><br>震撼科技&nbsp&nbsp QQ:%s<br>祝使用愉快！</body></html>'
     
@@ -66,12 +66,12 @@ def mailwillexp(cols,rows):
         end=end.replace(tzinfo=sstime.tz)
         days=(end-sstime.now()).days+1
         #mail to user every 3 days if days>20, mail every 2 days if days>10, mail every day if days<=10
-        if (days>10 and days%2==0) or (days<=10):
+        if days=15 or days=10 or days=3 or days<=1:
             port=myconfig.getaid(int(row[cols.index('port')]))
             enddate=end.strftime('%Y-%m-%d')
             email=row[cols.index('email')]
 
-            subject = subject % port
+            subject = subject % (days,port)
             text_content = text_content % (port,enddate,days,port,myconfig.qq)
             html_content = html_content % (port,enddate,days,port,myconfig.qq)
             mail(subject,text_content,html_content,email)
