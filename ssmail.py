@@ -66,7 +66,7 @@ def mailwillexp(cols,rows):
         end=end.replace(tzinfo=sstime.tz)
         days=(end-sstime.now()).days+1
         #mail to user every 3 days if days>20, mail every 2 days if days>10, mail every day if days<=10
-        if days=15 or days=10 or days=3 or days<=1:
+        if days==15 or days==10 or days==3 or days<=1:
             port=myconfig.getaid(int(row[cols.index('port')]))
             enddate=end.strftime('%Y-%m-%d')
             email=row[cols.index('email')]
