@@ -26,4 +26,6 @@ while True:
             ssmail.mail('Supervisor restarted.(' + myconfig.getaid(10000) + ')','Found no exists supervisor.sock,restarted done!', '', 'info@boosoo.cn')
         time.sleep(5) 
 
-
+    #check update
+    #if os.path.exists('/root/sscmdrun/update.sh'):
+        
