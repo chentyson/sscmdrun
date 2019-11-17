@@ -13,7 +13,7 @@ newip=`echo $2 | sed 's/\./\\\./g'`
 count=`grep -w $newip $file | wc -l`
 #echo count is $count
 if [ $count -gt 0 ]; then
-    echo $(date) 'ip count is great than 0, multiple operation~ ignore'>>$dir/redns.log
+    echo $(date) 'ip('$2') count is great than 0, multiple operation~ ignore'>>$dir/redns.log
     exit
 fi
 
